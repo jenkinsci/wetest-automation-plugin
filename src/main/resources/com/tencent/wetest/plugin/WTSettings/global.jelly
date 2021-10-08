@@ -1,0 +1,25 @@
+<?jelly escape-by-default='true'?>
+<j:jelly
+        xmlns:j="jelly:core"
+        xmlns:f="/lib/form">
+    <f:section
+            title="${%WeTest Automated Testing}">
+        <f:entry
+                field="saveData"/>
+        <f:block>
+            <f:entry title="${%Secret Id}">
+                <f:textbox name="secretId" value="${descriptor.getSecretId()}"/>
+            </f:entry>
+            <f:entry title="${%Secret Key}">
+                <f:password name="secretKey" value="${descriptor.getSecretKey()}"/>
+            </f:entry>
+            <f:entry field="host" title="${%WeTest URL}">
+                <f:textbox name="hostUrl" value="${descriptor.getHostUrl()}"/>
+            </f:entry>
+            <f:validateButton
+                    title="${%Save}"
+                    method="saveData"
+                    with="secretId,secretKey,hostUrl"/>
+        </f:block>
+    </f:section>
+</j:jelly>

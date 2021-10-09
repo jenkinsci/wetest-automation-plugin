@@ -18,7 +18,7 @@ public class WTTestBuilderTest {
                 System.getenv("CT_SECRET_KEY"),
                 System.getenv("CT_API_DOMAIN"), "cloudtest","http://"));
 
-        WTTestBuilder builder = new WTTestBuilder("", "384", "1420", "1", "600");
+        WTTestBuilder builder = new WTTestBuilder("", "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\landtest.apk", "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\sleep1m.zip", "1", "600");
         project.getBuildersList().add(builder);
 
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);

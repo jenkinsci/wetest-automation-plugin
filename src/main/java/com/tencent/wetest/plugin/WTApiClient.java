@@ -7,6 +7,8 @@ import com.cloudtestapi.common.profile.ClientProfile;
 import com.cloudtestapi.common.profile.HttpProfile;
 import com.cloudtestapi.test.models.CompatibilityTest;
 import com.cloudtestapi.test.models.TestInfo;
+import com.cloudtestapi.upload.models.App;
+import com.cloudtestapi.upload.models.Script;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -17,10 +19,13 @@ import java.util.logging.Logger;
 public class WTApiClient {
     Logger LOGGER = Logger.getLogger(WTApp.class.getSimpleName());
 
-    private static final int DEFAULT_CLOUD_ID = 2;
+    public static final String VERSION = "V1.0.0-20211009";
+
     public static final String DEFAULT_CLOUD_TOOL = "cloud_test";
-    private static final String DEFAULT_FRAME_TYPE = "uitest";
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
+
+    private static final int DEFAULT_CLOUD_ID = 2;
+    private static final String DEFAULT_FRAME_TYPE = "uitest";
 
     private String secretId;
     private String secretKey;
@@ -78,13 +83,13 @@ public class WTApiClient {
                 "hostUrl:" + hostUrl + "\n}";
     }
 
-    TestInfo startTest(String projectId, String appPath, String scriptPath, String groupId, String timeout) {
+    TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeout) {
         try {
             CompatibilityTest compatibilityTest = new CompatibilityTest();
-            compatibilityTest.setAppId(Integer.parseInt(appPath));
+            compatibilityTest.setAppId(appId);
+            compatibilityTest.setScriptId(scriptId);
             compatibilityTest.setDeviceNumber(Integer.parseInt(groupId));
             compatibilityTest.setCloudIds(new int[]{DEFAULT_CLOUD_ID});
-            compatibilityTest.setScriptId(Integer.parseInt(scriptPath));
             compatibilityTest.setFrameType(DEFAULT_FRAME_TYPE);
 
             compatibilityTest.setMaxDeviceRunTime(Integer.parseInt(timeout));
@@ -100,6 +105,28 @@ public class WTApiClient {
         }
         LOGGER.log(Level.INFO, "finish Test.");
         return null;
+    }
+
+    int uploadApp(String appPath) throws CloudTestSDKException {
+        int appid = 0;
+        try {
+            appid = Integer.parseInt(appPath);
+        } catch (NumberFormatException e) {
+            App appResp = ctClient.upload.multiPartUploadApk(appPath);
+            appid = appResp.appId;
+        }
+        return appid;
+    }
+
+    int uploadScript(String script) throws CloudTestSDKException {
+        int appid = 0;
+        try {
+            appid = Integer.parseInt(script);
+        } catch (NumberFormatException e) {
+            Script scriptResp = ctClient.upload.multiPartUploadScript(script);
+            appid = scriptResp.scriptId;
+        }
+        return appid;
     }
 
     List<ProjectInfo> getProjectIds() {

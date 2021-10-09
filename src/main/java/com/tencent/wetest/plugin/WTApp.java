@@ -1,15 +1,10 @@
 package com.tencent.wetest.plugin;
 
-import com.cloudtestapi.common.exception.CloudTestSDKException;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
-import java.util.logging.Logger;
-
 @Extension
 public class WTApp {
-    Logger LOGGER = Logger.getLogger(WTApp.class.getSimpleName());
-
     private WTApiClient wtApiClient = null;
 
     public static WTApp getInstance() {
@@ -26,6 +21,9 @@ public class WTApp {
     static void initGlobalSettings(WTSettings.DescriptorImpl settings) {
         getInstance().wtApiClient = new WTApiClient(settings.getSecretId(),
                 settings.getSecretKey(),
-                settings.getHostUrl());
+                settings.getHostUrl(),
+                settings.getToolPath(),
+                settings.getProtocol()
+        );
     }
 }

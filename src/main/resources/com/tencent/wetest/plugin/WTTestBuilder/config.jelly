@@ -12,9 +12,9 @@
     <f:entry field="groupId" title="${%Device group}">
         <f:select/>
     </f:entry>
-        <f:advanced>
-            <f:entry field="timeout" title="${%Timeout}">
-                <f:textbox name="timeout" value="${instance.timeout}"/>
-            </f:entry>
-        </f:advanced>
+    <f:advanced>
+        <f:entry field="timeout" title="${%Timeout}">
+            <f:textbox name="timeout" value="${instance.timeout}"/>
+        </f:entry>
+    </f:advanced>
 </j:jelly>

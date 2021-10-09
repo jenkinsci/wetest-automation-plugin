@@ -18,6 +18,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import java.io.IOException;
 import java.io.Serializable;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+
 public class WTTestBuilder extends Builder implements SimpleBuildStep {
 
     private String projectId;
@@ -107,6 +109,8 @@ public class WTTestBuilder extends Builder implements SimpleBuildStep {
     public interface WTStepDescriptorUtil {
         default ListBoxModel doFillProjectIdItems() {
             ListBoxModel projectIds = new ListBoxModel();
+            ListBoxModel.Option EMPTY_OPTION = new ListBoxModel.Option(EMPTY, EMPTY);
+            projectIds.add(EMPTY_OPTION);
             for (WTApiClient.ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
                 projectIds.add(info.project_name, info.project_id);
             }

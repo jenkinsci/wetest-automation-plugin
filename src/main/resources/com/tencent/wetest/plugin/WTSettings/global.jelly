@@ -16,6 +16,14 @@
             <f:entry field="host" title="${%WeTest URL}">
                 <f:textbox name="hostUrl" value="${descriptor.getHostUrl()}"/>
             </f:entry>
+            <f:advanced>
+                <f:entry field="toolPath" title="${%ToolPath}">
+                    <f:textbox name="toolPath" value="${instance.toolPath}"/>
+                </f:entry>
+              <f:entry field="protocol" title="${%Protocol}">
+                  <f:textbox name="protocol" value="${instance.protocol}"/>
+              </f:entry>
+            </f:advanced>
             <f:validateButton
                     title="${%Save}"
                     method="saveData"

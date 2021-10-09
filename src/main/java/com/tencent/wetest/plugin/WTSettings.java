@@ -30,16 +30,22 @@ public class WTSettings implements Describable<WTSettings> {
 
         String hostUrl;
 
+        String toolPath = WTApiClient.DEFAULT_CLOUD_TOOL;
+
+        String protocol = WTApiClient.DEFAULT_PROTOCOL_TYPE;
+
         public DescriptorImpl() {
             super();
             load();
         }
 
-        DescriptorImpl(String secretId, String secretKey, String hostUrl) {
+        DescriptorImpl(String secretId, String secretKey, String hostUrl, String toolPath, String protocol) {
             this();
             setHostUrl(hostUrl);
             setSecretId(secretId);
             setSecretKey(secretKey);
+            setToolPath(toolPath);
+            setProtocol(protocol);
         }
 
         @Nonnull
@@ -61,6 +67,8 @@ public class WTSettings implements Describable<WTSettings> {
             setHostUrl(hostUrl);
             setSecretId(secretId);
             setSecretKey(secretKey);
+            setToolPath(toolPath);
+            setProtocol(protocol);
             WTApp.initGlobalSettings(this);
             super.save();
         }
@@ -70,10 +78,12 @@ public class WTSettings implements Describable<WTSettings> {
             super.load();
         }
 
-        public FormValidation doSaveData(String secretId, String secretKey, String hostUrl) {
+        public FormValidation doSaveData(String secretId, String secretKey, String hostUrl, String toolPath, String protocol) {
             setHostUrl(hostUrl);
             setSecretId(secretId);
             setSecretKey(secretKey);
+            setToolPath(toolPath);
+            setProtocol(protocol);
             save();
             WTApp.initGlobalSettings(this);
             return FormValidation.ok();
@@ -104,6 +114,22 @@ public class WTSettings implements Describable<WTSettings> {
                 hostUrl = DEFAULT_HOST_URL;
             }
             return this.hostUrl;
+        }
+
+        public void setToolPath(String toolPath) {
+            this.toolPath = toolPath;
+        }
+
+        public String getToolPath() {
+            return toolPath;
+        }
+
+        public void setProtocol(String protocol) {
+            this.protocol = protocol;
+        }
+
+        public String getProtocol() {
+            return protocol;
         }
 
         @Override

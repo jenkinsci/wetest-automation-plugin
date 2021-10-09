@@ -7,10 +7,10 @@ import com.cloudtestapi.common.profile.ClientProfile;
 import com.cloudtestapi.common.profile.HttpProfile;
 import com.cloudtestapi.test.models.CompatibilityTest;
 import com.cloudtestapi.test.models.TestInfo;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,22 +18,26 @@ public class WTApiClient {
     Logger LOGGER = Logger.getLogger(WTApp.class.getSimpleName());
 
     private static final int DEFAULT_CLOUD_ID = 2;
-    private static final String DEFAULT_CLOUD_TOOL = "cloud_test";
+    public static final String DEFAULT_CLOUD_TOOL = "cloud_test";
     private static final String DEFAULT_FRAME_TYPE = "uitest";
+    public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
 
     private String secretId;
     private String secretKey;
     private String hostUrl;
+    private String toolPath;
+    private String protocol;
 
     private Credential credential;
     private ClientProfile profile;
     private CTClient ctClient;
 
-    public WTApiClient(String secretId, String secretKey, String hostUrl) {
+    public WTApiClient(String secretId, String secretKey, String hostUrl, String toolPath, String protocol) {
         this.secretId = secretId;
         this.secretKey = secretKey;
         this.hostUrl = hostUrl;
-
+        this.toolPath =  StringUtils.isBlank(toolPath) ? DEFAULT_CLOUD_TOOL : toolPath;
+        this.protocol =  StringUtils.isBlank(protocol) ? DEFAULT_PROTOCOL_TYPE : protocol;
         try {
             initReqConfig();
         } catch (CloudTestSDKException e) {
@@ -44,8 +48,8 @@ public class WTApiClient {
     private void initReqConfig() throws CloudTestSDKException {
         HttpProfile httpProfile = new HttpProfile();
         httpProfile.setRootDomain(hostUrl);
-        httpProfile.setToolPath(DEFAULT_CLOUD_TOOL);
-        httpProfile.setProtocol(HttpProfile.REQ_HTTPS);
+        httpProfile.setToolPath(toolPath);
+        httpProfile.setProtocol(protocol);
         profile = new ClientProfile(ClientProfile.SIGN_SHA256, httpProfile);
         credential = new Credential(secretId, secretKey);
         ctClient = new CTClient(credential, profile);
@@ -63,6 +67,10 @@ public class WTApiClient {
         return this.hostUrl;
     }
 
+    public String getToolPath() {
+        return toolPath;
+    }
+
     @Override
     public String toString() {
         return "{\nsecretId:" + secretId + ",\n" +
@@ -73,17 +81,22 @@ public class WTApiClient {
     TestInfo startTest(String projectId, String appPath, String scriptPath, String groupId, String timeout) {
         try {
             CompatibilityTest compatibilityTest = new CompatibilityTest();
-            compatibilityTest.setProject(projectId);
             compatibilityTest.setAppId(Integer.parseInt(appPath));
             compatibilityTest.setDeviceNumber(Integer.parseInt(groupId));
             compatibilityTest.setCloudIds(new int[]{DEFAULT_CLOUD_ID});
             compatibilityTest.setScriptId(Integer.parseInt(scriptPath));
             compatibilityTest.setFrameType(DEFAULT_FRAME_TYPE);
+
             compatibilityTest.setMaxDeviceRunTime(Integer.parseInt(timeout));
             compatibilityTest.setMaxTestRunTime(Integer.parseInt(timeout));
+
+            if (!StringUtils.isBlank(projectId)) {
+                compatibilityTest.setProject(projectId);
+            }
+
             return ctClient.test.startCompatibilityTest(compatibilityTest);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Start Test Failed : " + e);
+            LOGGER.log(Level.SEVERE, "Start Test Failed : " + e.toString());
         }
         LOGGER.log(Level.INFO, "finish Test.");
         return null;

@@ -25,8 +25,8 @@ public class WTApiClient {
 
     @Override
     public String toString() {
-        return "{secretId:" + secretId + ",\n" +
+        return "{\nsecretId:" + secretId + ",\n" +
                 "secretKey:" + secretKey + ",\n" +
-                "hostUrl:" + hostUrl + ",}";
+                "hostUrl:" + hostUrl + "\n}";
     }
 }

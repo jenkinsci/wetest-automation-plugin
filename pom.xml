@@ -16,11 +16,7 @@
         <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
         <jenkins.version>2.164.3</jenkins.version>
         <java.level>8</java.level>
-        <!-- Other properties you may want to use:
-          ~ jenkins-test-harness.version: Jenkins Test Harness version you use to test the plugin. For Jenkins version >= 1.580.1 use JTH 2.0 or higher.
-          ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
-          ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
-     -->
+        <wetest.api.version>1.0.0</wetest.api.version>
     </properties>
     <licenses>
         <license>
@@ -38,6 +34,7 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -64,6 +61,11 @@
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-durable-task-step</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudtestapi</groupId>
+            <artifactId>ctapijava</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

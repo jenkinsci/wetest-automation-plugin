@@ -28,19 +28,18 @@ public class WTTestBuilderTest {
     @Test
     public void testBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
+
         WTTestBuilder builder = new WTTestBuilder(name);
         project.getBuildersList().add(builder);
-        WTApp.initGlobalSettings(new WTSettings.DescriptorImpl("testId","testKey","testHostUrl"));
 
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        String expectedString = "testHostUrl";
+        String expectedString = "device";
         jenkins.assertLogContains(expectedString, build);
     }
 
     @Test
     public void testScriptedPipeline() throws Exception {
         String agentLabel = "my-agent";
-        WTApp.initGlobalSettings(new WTSettings.DescriptorImpl("testId","testKey","testHostUrl"));
         jenkins.createOnlineSlave(Label.get(agentLabel));
         WorkflowJob job = jenkins.createProject(WorkflowJob.class, "test-scripted-pipeline");
         String pipelineScript
@@ -49,7 +48,7 @@ public class WTTestBuilderTest {
                 + "}";
         job.setDefinition(new CpsFlowDefinition(pipelineScript, true));
         WorkflowRun completedBuild = jenkins.assertBuildStatusSuccess(job.scheduleBuild2(0));
-        String expectedString = "testHostUrl";
+        String expectedString = "device";
         jenkins.assertLogContains(expectedString, completedBuild);
     }
 }

@@ -3,8 +3,11 @@ package com.tencent.wetest.plugin;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
+import java.util.logging.Logger;
+
 @Extension
 public class WTApp {
+    Logger LOGGER = Logger.getLogger(WTApp.class.getSimpleName());
 
     private WTApiClient wtApiClient = null;
 

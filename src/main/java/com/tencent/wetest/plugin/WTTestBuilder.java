@@ -1,9 +1,6 @@
 package com.tencent.wetest.plugin;
 
-import com.cloudtestapi.CTClient;
-import com.cloudtestapi.common.Credential;
-import com.cloudtestapi.common.profile.ClientProfile;
-import com.cloudtestapi.common.profile.HttpProfile;
+import com.cloudtestapi.test.models.TestInfo;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -12,25 +9,35 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.logging.Level;
 
 public class WTTestBuilder extends Builder implements SimpleBuildStep {
 
+    public interface WTStepDescriptorUtil {
+        default ListBoxModel doFillProjectIdItems() {
+            ListBoxModel projectIds = new ListBoxModel();
+            projectIds.add("59Gq6okp", "59Gq6okp");
+            return projectIds;
+        }
+
+        default ListBoxModel doFillGroupIdItems() {
+            ListBoxModel projectIds = new ListBoxModel();
+            projectIds.add("1", "1");
+            projectIds.add("2", "2");
+            return projectIds;
+        }
+    }
+
     @Symbol("greet")
     @Extension
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-
-        public FormValidation doCheckName(@QueryParameter String value, @QueryParameter boolean useFrench)
-                throws IOException, ServletException {
-            return FormValidation.ok();
-        }
+    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> implements Serializable, WTStepDescriptorUtil {
 
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
@@ -43,48 +50,70 @@ public class WTTestBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private final String name;
+    private String projectId;
+    private String appPath;
+    private String scriptPath;
+    private String groupId;
+    private String timeout;
 
     @DataBoundConstructor
-    public WTTestBuilder(String name) {
-        this.name = name;
+    public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId, String timeout) {
+        this.projectId = projectId;
+        this.appPath = appPath;
+        this.scriptPath = scriptPath;
+        this.groupId = groupId;
+        this.timeout = timeout;
     }
 
-    public String getName() {
-        return name;
+    public String getAppPath() {
+        return appPath;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public String getScriptPath() {
+        return scriptPath;
+    }
+
+    public String getTimeout() {
+        return timeout;
     }
 
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-        showGlobalEnv(listener);
-    }
+        listener.getLogger().println("Run WeTest Automated Testing process started...");
+        listener.getLogger().println("Waiting for uploading files");
+        //TODO: upload apk
+        //TODO: upload script
 
-    private void showGlobalEnv(TaskListener listener) {
+        showConfig(listener);
+
+        listener.getLogger().println("Running tests");
         WTApiClient apiClient = WTApp.getGlobalApiClient();
-        listener.getLogger().println("ENV: " + apiClient.toString());
-
-        // list public cloud devices
-        getCloudDeviceInfo(2, listener);
-    }
-
-    private void getCloudDeviceInfo(int cloudid, TaskListener listener) {
-        WTApiClient apiClient = WTApp.getGlobalApiClient();
-        Credential credential = new Credential(apiClient.getSecretId(), apiClient.getSecretKey());
-        HttpProfile httpProfile = new HttpProfile();
-        httpProfile.setRootDomain(apiClient.getHostUrl());
-        httpProfile.setToolPath("cloud_test");
-        httpProfile.setProtocol(HttpProfile.REQ_HTTPS);
-        // 实例化一个client选项，可选的，没有特殊需求可跳过
-        ClientProfile profile = new ClientProfile(ClientProfile.SIGN_SHA256, httpProfile);
-        try {
-            listener.getLogger().println("Start getDevicesByCloudId");
-            CTClient ctClient = new CTClient(credential, profile);
-            listener.getLogger().println("Get getDevicesByCloudId 2 : " +
-                    ctClient.gson.toJson(ctClient.device.getDevicesByCloudId(cloudid)));
-        } catch (Exception e) {
-            listener.getLogger().println("Get getDevicesByCloudId : " + e);
-        } finally {
-            listener.getLogger().println("exit getDevicesByCloudId");
+        TestInfo info = apiClient.startTest(projectId, appPath, scriptPath, groupId, timeout);
+        if (info != null) {
+            listener.getLogger().println("Start Test, testId: " + info.testId + ", report url: " + info.reportUrl);
+            listener.getLogger().println("Run test in WeTest succeeded");
+        } else {
+            listener.getLogger().println("Run test in WeTest Failed");
         }
+    }
+
+    private void showConfig(TaskListener listener) {
+        WTApiClient apiClient = WTApp.getGlobalApiClient();
+        listener.getLogger().println("Global ENV:\n" + apiClient.toString());
+
+        listener.getLogger().println("Test ENV:" +
+                "\nprojectId: " + projectId +
+                "\ngroupId: " + groupId +
+                "\nappPath: " + appPath +
+                "\nscriptPath: " + scriptPath
+        );
     }
 }

@@ -61,6 +61,7 @@ public class WTSettings implements Describable<WTSettings> {
             setHostUrl(hostUrl);
             setSecretId(secretId);
             setSecretKey(secretKey);
+            WTApp.initGlobalSettings(this);
             super.save();
         }
 
@@ -74,6 +75,7 @@ public class WTSettings implements Describable<WTSettings> {
             setSecretId(secretId);
             setSecretKey(secretKey);
             save();
+            WTApp.initGlobalSettings(this);
             return FormValidation.ok();
         }
 
@@ -102,13 +104,6 @@ public class WTSettings implements Describable<WTSettings> {
                 hostUrl = DEFAULT_HOST_URL;
             }
             return this.hostUrl;
-        }
-
-        @Override
-        public String toString() {
-            return "{" + "secretId:" + secretId + "," +
-                    "secretKey:" + secretKey + "," +
-                    "hostUrl:" + hostUrl + "," + "}";
         }
 
         @Override

@@ -32,15 +32,11 @@ public class WTTestBuilder extends Builder implements SimpleBuildStep {
 
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-
-
-
         showGlobalEnv(listener);
     }
 
     private void showGlobalEnv(TaskListener listener) {
-        WTSettings.DescriptorImpl settings = new WTSettings.DescriptorImpl();
-        listener.getLogger().println("Get Global Env : " + settings.toString());
+        listener.getLogger().println("Get Global Env : " + WTApp.getGlobalApiClient().toString());
     }
 
     @Symbol("greet")

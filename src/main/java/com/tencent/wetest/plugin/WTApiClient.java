@@ -2,11 +2,15 @@ package com.tencent.wetest.plugin;
 
 import com.cloudtestapi.CTClient;
 import com.cloudtestapi.common.Credential;
+import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.common.profile.ClientProfile;
 import com.cloudtestapi.common.profile.HttpProfile;
 import com.cloudtestapi.test.models.CompatibilityTest;
 import com.cloudtestapi.test.models.TestInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,10 +25,30 @@ public class WTApiClient {
     private String secretKey;
     private String hostUrl;
 
+    private Credential credential;
+    private ClientProfile profile;
+    private CTClient ctClient;
+
     public WTApiClient(String secretId, String secretKey, String hostUrl) {
         this.secretId = secretId;
         this.secretKey = secretKey;
         this.hostUrl = hostUrl;
+
+        try {
+            initReqConfig();
+        } catch (CloudTestSDKException e) {
+            LOGGER.log(Level.SEVERE, "Start Test Failed : " + e);
+        }
+    }
+
+    private void initReqConfig() throws CloudTestSDKException {
+        HttpProfile httpProfile = new HttpProfile();
+        httpProfile.setRootDomain(hostUrl);
+        httpProfile.setToolPath(DEFAULT_CLOUD_TOOL);
+        httpProfile.setProtocol(HttpProfile.REQ_HTTPS);
+        profile = new ClientProfile(ClientProfile.SIGN_SHA256, httpProfile);
+        credential = new Credential(secretId, secretKey);
+        ctClient = new CTClient(credential, profile);
     }
 
     public String getSecretId() {
@@ -46,16 +70,8 @@ public class WTApiClient {
                 "hostUrl:" + hostUrl + "\n}";
     }
 
-    public TestInfo startTest(String projectId, String appPath, String scriptPath, String groupId, String timeout) {
-        WTApiClient apiClient = WTApp.getGlobalApiClient();
-        Credential credential = new Credential(apiClient.getSecretId(), apiClient.getSecretKey());
-        HttpProfile httpProfile = new HttpProfile();
-        httpProfile.setRootDomain(apiClient.getHostUrl());
-        httpProfile.setToolPath(DEFAULT_CLOUD_TOOL);
-        httpProfile.setProtocol(HttpProfile.REQ_HTTPS);
-        ClientProfile profile = new ClientProfile(ClientProfile.SIGN_SHA256, httpProfile);
+    TestInfo startTest(String projectId, String appPath, String scriptPath, String groupId, String timeout) {
         try {
-            CTClient ctClient = new CTClient(credential, profile);
             CompatibilityTest compatibilityTest = new CompatibilityTest();
             compatibilityTest.setProject(projectId);
             compatibilityTest.setAppId(Integer.parseInt(appPath));
@@ -71,5 +87,44 @@ public class WTApiClient {
         }
         LOGGER.log(Level.INFO, "finish Test.");
         return null;
+    }
+
+    List<ProjectInfo> getProjectIds() {
+        //TODO: get from web server
+
+        List<ProjectInfo> projects = new ArrayList<>();
+        projects.add(new ProjectInfo("测试项目1", "59Gq6okp"));
+        projects.add(new ProjectInfo("测试项目2", "59Gq6okp"));
+        return projects;
+    }
+
+    List<GroupInfo> getGroupIds() {
+        //TODO: get from web server
+
+        List<GroupInfo> groups = new ArrayList<>();
+        groups.add(new GroupInfo("测试设备组1", "1"));
+        groups.add(new GroupInfo("测试设备组2", "2"));
+        groups.add(new GroupInfo("random5", "5"));
+        return groups;
+    }
+
+    static class ProjectInfo {
+        String project_id;
+        String project_name;
+
+        ProjectInfo(String project_name, String project_id) {
+            this.project_id = project_id;
+            this.project_name = project_name;
+        }
+    }
+
+    static class GroupInfo {
+        String group_id;
+        String group_name;
+
+        GroupInfo(String group_name, String group_id) {
+            this.group_id = group_id;
+            this.group_name = group_name;
+        }
     }
 }

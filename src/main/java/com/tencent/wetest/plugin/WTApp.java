@@ -1,5 +1,6 @@
 package com.tencent.wetest.plugin;
 
+import com.cloudtestapi.common.exception.CloudTestSDKException;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 

@@ -6,7 +6,7 @@
     <f:entry field="application" title="${%Application}">
         <f:textbox name="appPath" value="${instance.appPath}"/>
     </f:entry>
-    <f:entry field="instrumentation" title="${%Test Script}">
+    <f:entry field="testscript" title="${%Test Script}">
         <f:textbox name="scriptPath" value="${instance.scriptPath}"/>
     </f:entry>
     <f:entry field="groupId" title="${%Device group}">

@@ -1,5 +1,6 @@
 package com.tencent.wetest.plugin;
 
+import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.test.models.TestInfo;
 import hudson.Extension;
 import hudson.FilePath;
@@ -16,39 +17,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.logging.Level;
 
 public class WTTestBuilder extends Builder implements SimpleBuildStep {
-
-    public interface WTStepDescriptorUtil {
-        default ListBoxModel doFillProjectIdItems() {
-            ListBoxModel projectIds = new ListBoxModel();
-            projectIds.add("59Gq6okp", "59Gq6okp");
-            return projectIds;
-        }
-
-        default ListBoxModel doFillGroupIdItems() {
-            ListBoxModel projectIds = new ListBoxModel();
-            projectIds.add("1", "1");
-            projectIds.add("2", "2");
-            return projectIds;
-        }
-    }
-
-    @Symbol("greet")
-    @Extension
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> implements Serializable, WTStepDescriptorUtil {
-
-        @Override
-        public boolean isApplicable(Class<? extends AbstractProject> aClass) {
-            return true;
-        }
-
-        @Override
-        public String getDisplayName() {
-            return Messages.PLUGIN_NAME();
-        }
-    }
 
     private String projectId;
     private String appPath;
@@ -92,11 +62,14 @@ public class WTTestBuilder extends Builder implements SimpleBuildStep {
         //TODO: upload apk
         //TODO: upload script
 
-        showConfig(listener);
+        try {
+            showConfig(listener);
+        } catch (CloudTestSDKException e) {
+            e.printStackTrace();
+        }
 
         listener.getLogger().println("Running tests");
-        WTApiClient apiClient = WTApp.getGlobalApiClient();
-        TestInfo info = apiClient.startTest(projectId, appPath, scriptPath, groupId, timeout);
+        TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appPath, scriptPath, groupId, timeout);
         if (info != null) {
             listener.getLogger().println("Start Test, testId: " + info.testId + ", report url: " + info.reportUrl);
             listener.getLogger().println("Run test in WeTest succeeded");
@@ -105,9 +78,8 @@ public class WTTestBuilder extends Builder implements SimpleBuildStep {
         }
     }
 
-    private void showConfig(TaskListener listener) {
-        WTApiClient apiClient = WTApp.getGlobalApiClient();
-        listener.getLogger().println("Global ENV:\n" + apiClient.toString());
+    private void showConfig(TaskListener listener) throws CloudTestSDKException {
+        listener.getLogger().println("Global ENV:\n" + WTApp.getGlobalApiClient().toString());
 
         listener.getLogger().println("Test ENV:" +
                 "\nprojectId: " + projectId +
@@ -116,4 +88,38 @@ public class WTTestBuilder extends Builder implements SimpleBuildStep {
                 "\nscriptPath: " + scriptPath
         );
     }
+
+    @Symbol("greet")
+    @Extension
+    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> implements Serializable, WTStepDescriptorUtil {
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> aClass) {
+            return true;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return Messages.PLUGIN_NAME();
+        }
+    }
+
+    public interface WTStepDescriptorUtil {
+        default ListBoxModel doFillProjectIdItems() {
+            ListBoxModel projectIds = new ListBoxModel();
+            for (WTApiClient.ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
+                projectIds.add(info.project_name, info.project_id);
+            }
+            return projectIds;
+        }
+
+        default ListBoxModel doFillGroupIdItems() {
+            ListBoxModel projectIds = new ListBoxModel();
+            for (WTApiClient.GroupInfo info : WTApp.getGlobalApiClient().getGroupIds()) {
+                projectIds.add(info.group_name, info.group_id);
+            }
+            return projectIds;
+        }
+    }
+
 }

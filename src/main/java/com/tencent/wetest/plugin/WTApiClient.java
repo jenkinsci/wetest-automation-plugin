@@ -1,10 +1,12 @@
 package com.tencent.wetest.plugin;
 
 import com.cloudtestapi.CTClient;
+import com.cloudtestapi.account.models.Project;
 import com.cloudtestapi.common.Credential;
 import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.common.profile.ClientProfile;
 import com.cloudtestapi.common.profile.HttpProfile;
+import com.cloudtestapi.device.models.ModelList;
 import com.cloudtestapi.test.models.CompatibilityTest;
 import com.cloudtestapi.test.models.TestInfo;
 import com.cloudtestapi.upload.models.App;
@@ -21,11 +23,14 @@ public class WTApiClient {
 
     public static final String VERSION = "V1.0.0-20211009";
 
-    public static final String DEFAULT_CLOUD_TOOL = "cloud_test";
+    public static final int DEFAULT_TIMEOUT = 600;
+    public static final String DEFAULT_CLOUD_TOOL = "cloudtest";
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
+    public static final int DEFAULT_CLOUD_ID = 2;
+    public static final String DEFAULT_FRAME_TYPE = "uitest";
 
-    private static final int DEFAULT_CLOUD_ID = 2;
-    private static final String DEFAULT_FRAME_TYPE = "uitest";
+    private static final String CHOOSE_TYPE_DEVICE_IDS ="deviceids";
+    private static final String CHOOSE_TYPE_MODEL_IDS ="modelids";
 
     private String secretId;
     private String secretKey;
@@ -37,12 +42,16 @@ public class WTApiClient {
     private ClientProfile profile;
     private CTClient ctClient;
 
+    ModelList[] modelList;
+
+    private String chooseType = CHOOSE_TYPE_DEVICE_IDS;
+
     public WTApiClient(String secretId, String secretKey, String hostUrl, String toolPath, String protocol) {
         this.secretId = secretId;
         this.secretKey = secretKey;
         this.hostUrl = hostUrl;
-        this.toolPath =  StringUtils.isBlank(toolPath) ? DEFAULT_CLOUD_TOOL : toolPath;
-        this.protocol =  StringUtils.isBlank(protocol) ? DEFAULT_PROTOCOL_TYPE : protocol;
+        this.toolPath = StringUtils.isBlank(toolPath) ? DEFAULT_CLOUD_TOOL : toolPath;
+        this.protocol = StringUtils.isBlank(protocol) ? DEFAULT_PROTOCOL_TYPE : protocol;
         try {
             initReqConfig();
         } catch (CloudTestSDKException e) {
@@ -83,17 +92,22 @@ public class WTApiClient {
                 "hostUrl:" + hostUrl + "\n}";
     }
 
-    TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeout) {
+    TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeout,
+                       String cloudId, String frameType) {
         try {
             CompatibilityTest compatibilityTest = new CompatibilityTest();
             compatibilityTest.setAppId(appId);
             compatibilityTest.setScriptId(scriptId);
-            compatibilityTest.setDeviceNumber(Integer.parseInt(groupId));
-            compatibilityTest.setCloudIds(new int[]{DEFAULT_CLOUD_ID});
-            compatibilityTest.setFrameType(DEFAULT_FRAME_TYPE);
+            compatibilityTest.setDevices(getDeviceIdsByGroup(groupId));
+            // choose type set by getDeviceIdsByGroup()
+            compatibilityTest.setDeviceChooseType(chooseType);
 
-            compatibilityTest.setMaxDeviceRunTime(Integer.parseInt(timeout));
-            compatibilityTest.setMaxTestRunTime(Integer.parseInt(timeout));
+            compatibilityTest.setCloudIds(new int[]{Integer.parseInt(cloudId)});//TODO: support cloud ids
+            compatibilityTest.setFrameType(frameType);
+
+            int testTimeout = Integer.parseInt(timeout);//TODO: check timeout format
+            compatibilityTest.setMaxDeviceRunTime(testTimeout);
+            compatibilityTest.setMaxTestRunTime(testTimeout);
 
             if (!StringUtils.isBlank(projectId)) {
                 compatibilityTest.setProject(projectId);
@@ -108,7 +122,7 @@ public class WTApiClient {
     }
 
     int uploadApp(String appPath) throws CloudTestSDKException {
-        int appid = 0;
+        int appid;
         try {
             appid = Integer.parseInt(appPath);
         } catch (NumberFormatException e) {
@@ -119,7 +133,7 @@ public class WTApiClient {
     }
 
     int uploadScript(String script) throws CloudTestSDKException {
-        int appid = 0;
+        int appid;
         try {
             appid = Integer.parseInt(script);
         } catch (NumberFormatException e) {
@@ -129,23 +143,49 @@ public class WTApiClient {
         return appid;
     }
 
-    List<ProjectInfo> getProjectIds() {
-        //TODO: get from web server
-
+    List<ProjectInfo> getProjectIds() throws CloudTestSDKException {
         List<ProjectInfo> projects = new ArrayList<>();
-        projects.add(new ProjectInfo("测试项目1", "59Gq6okp"));
-        projects.add(new ProjectInfo("测试项目2", "59Gq6okp"));
+        Project[] projectResp = ctClient.account.getProjects();
+        if (projectResp != null) {
+            for (Project project : projectResp) {
+                projects.add(new ProjectInfo(project.projectName, project.projectId));
+            }
+        }
         return projects;
     }
 
-    List<GroupInfo> getGroupIds() {
-        //TODO: get from web server
-
+    List<GroupInfo> getGroupIds() throws CloudTestSDKException {
         List<GroupInfo> groups = new ArrayList<>();
-        groups.add(new GroupInfo("测试设备组1", "1"));
-        groups.add(new GroupInfo("测试设备组2", "2"));
-        groups.add(new GroupInfo("random5", "5"));
+        modelList = ctClient.device.getModelList();
+        if (modelList != null) {
+            for (ModelList modelList : modelList) {
+                groups.add(new GroupInfo(modelList.name, modelList.name));
+            }
+        }
+        groups.add(new GroupInfo("random1", "1"));
         return groups;
+    }
+
+    private int[] getDeviceIdsByGroup(String groupName) {
+        if (modelList != null) {
+            for (ModelList modelList : modelList) {
+                if (modelList.name.equals(groupName)) {
+                    if (isLegalGroup(modelList.deviceIds)) {
+                        chooseType = CHOOSE_TYPE_DEVICE_IDS;
+                        return modelList.deviceIds;
+                    }
+                    if (isLegalGroup(modelList.modelIds)) {
+                        chooseType = CHOOSE_TYPE_MODEL_IDS;
+                        return modelList.modelIds;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean isLegalGroup(int[] group) {
+        return group != null && (group.length > 1 || group.length == 1 && group[0] != 0); // ignore group[0] = 0
     }
 
     static class ProjectInfo {

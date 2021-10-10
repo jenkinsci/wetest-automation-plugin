@@ -16,7 +16,7 @@
         <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
         <jenkins.version>2.164.3</jenkins.version>
         <java.level>8</java.level>
-        <wetest.api.version>1.0.0</wetest.api.version>
+        <wetest.api.version>1.0.2</wetest.api.version>
     </properties>
     <licenses>
         <license>
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.cloudtestapi</groupId>
             <artifactId>ctapijava</artifactId>
-            <version>1.0.1</version>
+            <version>${wetest.api.version}</version>
         </dependency>
     </dependencies>
 

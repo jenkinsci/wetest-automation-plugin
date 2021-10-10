@@ -22,7 +22,7 @@ public class WTSettings implements Describable<WTSettings> {
 
     @Extension
     public static final class DescriptorImpl extends Descriptor<WTSettings> {
-        private static final String DEFAULT_HOST_URL = "https://api.paas.wetest.qq.com/cloudtest";
+        private static final String DEFAULT_HOST_URL = "pre.api.paas.cloudtest.woa.com";
 
         String secretId;
 

@@ -16,5 +16,11 @@
         <f:entry field="timeout" title="${%Timeout}">
             <f:textbox name="timeout" value="${instance.timeout}"/>
         </f:entry>
+        <f:entry field="cloudId" title="${%cloudId}">
+             <f:textbox name="cloudId" value="${instance.cloudId}"/>
+        </f:entry>
+        <f:entry field="frameType" title="${%frameType}">
+            <f:textbox name="frameType" value="${instance.frameType}"/>
+        </f:entry>
     </f:advanced>
 </j:jelly>

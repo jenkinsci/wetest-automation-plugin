@@ -7,7 +7,6 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
@@ -25,14 +24,19 @@ public class WTTestBuilder extends Builder {
     private String scriptPath;
     private String groupId;
     private String timeout;
+    private String cloudId;
+    private String frameType;
 
     @DataBoundConstructor
-    public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId, String timeout) {
+    public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
+                         String timeout, String cloudId, String frameType) {
         this.projectId = projectId;
         this.appPath = appPath;
         this.scriptPath = scriptPath;
         this.groupId = groupId;
         this.timeout = timeout;
+        this.cloudId = cloudId;
+        this.frameType = frameType;
     }
 
     public String getAppPath() {
@@ -52,7 +56,24 @@ public class WTTestBuilder extends Builder {
     }
 
     public String getTimeout() {
+        if (StringUtils.isBlank(timeout)) {
+            timeout = String.valueOf(WTApiClient.DEFAULT_TIMEOUT);
+        }
         return timeout;
+    }
+
+    public String getCloudId() {
+        if (StringUtils.isBlank(cloudId)) {
+            cloudId = String.valueOf(WTApiClient.DEFAULT_CLOUD_ID);
+        }
+        return cloudId;
+    }
+
+    public String getFrameType() {
+        if (StringUtils.isBlank(frameType)) {
+            frameType = WTApiClient.DEFAULT_FRAME_TYPE;
+        }
+        return frameType;
     }
 
     @Override
@@ -87,10 +108,22 @@ public class WTTestBuilder extends Builder {
             return false;
         }
 
-        showConfig(listener);
+        listener.getLogger().println("Task Configs :" +
+                "\nHostUrl: " + WTApp.getGlobalApiClient().getHostUrl() +
+                "\nUserId: " + WTApp.getGlobalApiClient().getSecretId() +
+                "\nVersion: " + WTApiClient.VERSION +
+                "\nProjectId: " + projectId +
+                "\nAppId: " + appId +
+                "\nScriptId: " + scriptId +
+                "\nGroupId: " + groupId +
+                "\ncloudId: " + cloudId +
+                "\nFrameType: " + frameType +
+                "\nTimeout: " + timeout
+        );
 
         listener.getLogger().println("Running tests");
-        TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId, groupId, timeout);
+        TestInfo info = WTApp.getGlobalApiClient().startTest(projectId,
+                appId, scriptId, groupId, timeout, cloudId, frameType);
         if (info != null) {
             listener.getLogger().println("Start Test, testId: " + info.testId + ", report url: " + info.reportUrl);
             listener.getLogger().println("Run test in WeTest succeeded");
@@ -100,19 +133,6 @@ public class WTTestBuilder extends Builder {
         }
 
         return true;
-    }
-
-    private void showConfig(TaskListener listener) {
-        listener.getLogger().println("Task Configs :" +
-                "\nHostUrl: " + WTApp.getGlobalApiClient().getHostUrl() +
-                "\nUserId: " + WTApp.getGlobalApiClient().getSecretId() +
-                "\nVersion: " + WTApiClient.VERSION +
-                "\nProjectId: " + projectId +
-                "\nAppPath: " + appPath +
-                "\nScriptPath: " + scriptPath +
-                "\nGroupId: " + groupId +
-                "\nTimeout: " + timeout
-        );
     }
 
     @Symbol("greet")
@@ -131,20 +151,28 @@ public class WTTestBuilder extends Builder {
     }
 
     public interface WTStepDescriptorUtil {
+        ListBoxModel.Option EMPTY_OPTION = new ListBoxModel.Option(StringUtils.EMPTY, StringUtils.EMPTY);
+
         default ListBoxModel doFillProjectIdItems() {
             ListBoxModel projectIds = new ListBoxModel();
-            ListBoxModel.Option EMPTY_OPTION = new ListBoxModel.Option(StringUtils.EMPTY, StringUtils.EMPTY);
             projectIds.add(EMPTY_OPTION);
-            for (WTApiClient.ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
-                projectIds.add(info.project_name, info.project_id);
+            try {
+                for (WTApiClient.ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
+                    projectIds.add(info.project_name, info.project_id);
+                }
+            } catch (CloudTestSDKException e) {
             }
             return projectIds;
         }
 
         default ListBoxModel doFillGroupIdItems() {
             ListBoxModel projectIds = new ListBoxModel();
-            for (WTApiClient.GroupInfo info : WTApp.getGlobalApiClient().getGroupIds()) {
-                projectIds.add(info.group_name, info.group_id);
+            try {
+                for (WTApiClient.GroupInfo info : WTApp.getGlobalApiClient().getGroupIds()) {
+                    projectIds.add(info.group_name, info.group_id);
+                }
+            } catch (CloudTestSDKException e) {
+                projectIds.add(EMPTY_OPTION);
             }
             return projectIds;
         }

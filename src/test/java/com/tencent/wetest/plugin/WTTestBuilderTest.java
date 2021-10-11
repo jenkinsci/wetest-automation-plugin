@@ -22,9 +22,9 @@ public class WTTestBuilderTest {
                 "/Users/kiwim/work/code/config/sleep1m.zip", "VIVO测试组",
                 String.valueOf(WTApiClient.DEFAULT_TIMEOUT),
                 String.valueOf(WTApiClient.DEFAULT_CLOUD_ID),
-                WTApiClient.DEFAULT_FRAME_TYPE);
+                WTApiClient.DEFAULT_FRAME_TYPE, "", "");
 
-        WTApp.getGlobalApiClient().getGroupIds();
+        WTApp.getGlobalApiClient().getGroupIds("projectId");
 
         project.getBuildersList().add(builder);
 

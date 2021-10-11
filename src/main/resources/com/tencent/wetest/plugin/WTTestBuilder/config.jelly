@@ -9,6 +9,12 @@
     <f:entry field="testscript" title="${%Test Script}">
         <f:textbox name="scriptPath" value="${instance.scriptPath}"/>
     </f:entry>
+    <f:entry field="framework" title="${%Framework}">
+        <f:select/>
+    </f:entry>
+    <f:entry field="language" title="${%Language}">
+        <f:select/>
+    </f:entry>
     <f:entry field="groupId" title="${%Device group}">
         <f:select/>
     </f:entry>

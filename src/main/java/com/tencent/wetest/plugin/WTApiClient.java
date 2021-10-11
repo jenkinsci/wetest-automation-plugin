@@ -32,6 +32,8 @@ public class WTApiClient {
     private static final String CHOOSE_TYPE_DEVICE_IDS ="deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS ="modelids";
 
+    public static final int MODEL_LIST_FILTER_TYPE_MODEL = 1;
+    public static final int MODEL_LIST_FILTER_TYPE_DEVICE = 2;
     private String secretId;
     private String secretKey;
     private String hostUrl;
@@ -154,15 +156,15 @@ public class WTApiClient {
         return projects;
     }
 
-    List<GroupInfo> getGroupIds() throws CloudTestSDKException {
+    List<GroupInfo> getGroupIds(String projectId) throws CloudTestSDKException {
         List<GroupInfo> groups = new ArrayList<>();
-        modelList = ctClient.device.getModelList();
+        modelList = ctClient.device.getModelList(projectId);
         if (modelList != null) {
             for (ModelList modelList : modelList) {
-                groups.add(new GroupInfo(modelList.name, modelList.name));
+                groups.add(new GroupInfo(modelList.name, modelList.name,
+                        modelList.cloudName, GetDeviceNums(modelList)));
             }
         }
-        groups.add(new GroupInfo("random1", "1"));
         return groups;
     }
 
@@ -170,13 +172,14 @@ public class WTApiClient {
         if (modelList != null) {
             for (ModelList modelList : modelList) {
                 if (modelList.name.equals(groupName)) {
-                    if (isLegalGroup(modelList.deviceIds)) {
-                        chooseType = CHOOSE_TYPE_DEVICE_IDS;
-                        return modelList.deviceIds;
-                    }
-                    if (isLegalGroup(modelList.modelIds)) {
+                    if (modelList.filterType == MODEL_LIST_FILTER_TYPE_MODEL) {
                         chooseType = CHOOSE_TYPE_MODEL_IDS;
                         return modelList.modelIds;
+                    }
+
+                    if (modelList.filterType == MODEL_LIST_FILTER_TYPE_DEVICE) {
+                        chooseType = CHOOSE_TYPE_DEVICE_IDS;
+                        return modelList.deviceIds;
                     }
                 }
             }
@@ -184,8 +187,9 @@ public class WTApiClient {
         return null;
     }
 
-    private boolean isLegalGroup(int[] group) {
-        return group != null && (group.length > 1 || group.length == 1 && group[0] != 0); // ignore group[0] = 0
+    public int GetDeviceNums(ModelList list) {
+        return list.filterType == MODEL_LIST_FILTER_TYPE_MODEL ?
+                list.modelIds.length : list.deviceIds.length;
     }
 
     static class ProjectInfo {
@@ -201,10 +205,13 @@ public class WTApiClient {
     static class GroupInfo {
         String group_id;
         String group_name;
-
-        GroupInfo(String group_name, String group_id) {
+        String cloud_name;
+        int device_num;
+        GroupInfo(String group_name, String group_id, String cloud_name, int device_num) {
             this.group_id = group_id;
             this.group_name = group_name;
+            this.cloud_name = cloud_name;
+            this.device_num = device_num;
         }
     }
 }

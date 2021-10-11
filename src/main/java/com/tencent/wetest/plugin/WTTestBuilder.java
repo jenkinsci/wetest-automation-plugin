@@ -13,6 +13,7 @@ import hudson.util.ListBoxModel;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -26,10 +27,13 @@ public class WTTestBuilder extends Builder {
     private String timeout;
     private String cloudId;
     private String frameType;
+    private String framework;
+    private String language;
 
     @DataBoundConstructor
     public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
-                         String timeout, String cloudId, String frameType) {
+                         String timeout, String cloudId, String frameType, String framework,
+                         String language) {
         this.projectId = projectId;
         this.appPath = appPath;
         this.scriptPath = scriptPath;
@@ -37,6 +41,8 @@ public class WTTestBuilder extends Builder {
         this.timeout = timeout;
         this.cloudId = cloudId;
         this.frameType = frameType;
+        this.framework = framework;
+        this.language = language;
     }
 
     public String getAppPath() {
@@ -74,6 +80,22 @@ public class WTTestBuilder extends Builder {
             frameType = WTApiClient.DEFAULT_FRAME_TYPE;
         }
         return frameType;
+    }
+
+    public String getFramework() {
+        return framework;
+    }
+
+    public void setFramework(String framework) {
+        this.framework = framework;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     @Override
@@ -165,17 +187,25 @@ public class WTTestBuilder extends Builder {
             return projectIds;
         }
 
-        default ListBoxModel doFillGroupIdItems() {
+        default ListBoxModel doFillGroupIdItems(@QueryParameter String projectId) {
             ListBoxModel projectIds = new ListBoxModel();
             try {
-                for (WTApiClient.GroupInfo info : WTApp.getGlobalApiClient().getGroupIds()) {
-                    projectIds.add(info.group_name, info.group_id);
+                for (WTApiClient.GroupInfo info : WTApp.getGlobalApiClient().getGroupIds(projectId)) {
+                    projectIds.add(String.format("%s(%s, %d)", info.group_name, info.cloud_name,
+                            info.device_num), info.group_id);
                 }
             } catch (CloudTestSDKException e) {
                 projectIds.add(EMPTY_OPTION);
             }
             return projectIds;
         }
-    }
 
+        default ListBoxModel doFillFrameworkItems() {
+            return new ListBoxModel().add("Appium");
+        }
+
+        default ListBoxModel doFillLanguageItems() {
+            return new ListBoxModel().add("python").add("java");
+        }
+    }
 }

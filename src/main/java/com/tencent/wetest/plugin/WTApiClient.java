@@ -29,8 +29,8 @@ public class WTApiClient {
     public static final int DEFAULT_CLOUD_ID = 2;
     public static final String DEFAULT_FRAME_TYPE = "Appium";
 
-    private static final String CHOOSE_TYPE_DEVICE_IDS ="deviceids";
-    private static final String CHOOSE_TYPE_MODEL_IDS ="modelids";
+    private static final String CHOOSE_TYPE_DEVICE_IDS = "deviceids";
+    private static final String CHOOSE_TYPE_MODEL_IDS = "modelids";
 
     public static final int MODEL_LIST_FILTER_TYPE_MODEL = 1;
     public static final int MODEL_LIST_FILTER_TYPE_DEVICE = 2;
@@ -100,32 +100,26 @@ public class WTApiClient {
     }
 
     TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeOut,
-                       String cloudId, String frameType) {
-        try {
-            CompatibilityTest compatibilityTest = new CompatibilityTest();
-            compatibilityTest.setAppId(appId);
-            compatibilityTest.setScriptId(scriptId);
-            compatibilityTest.setDevices(getDeviceIdsByGroup(groupId));
-            // choose type set by getDeviceIdsByGroup()
-            compatibilityTest.setDeviceChooseType(chooseType);
+                       String cloudId, String frameType) throws CloudTestSDKException {
+        CompatibilityTest compatibilityTest = new CompatibilityTest();
+        compatibilityTest.setAppId(appId);
+        compatibilityTest.setScriptId(scriptId);
+        compatibilityTest.setDevices(getDeviceIdsByGroup(groupId));
+        // choose type set by getDeviceIdsByGroup()
+        compatibilityTest.setDeviceChooseType(chooseType);
 
-            compatibilityTest.setCloudIds(new int[]{Integer.parseInt(cloudId)});//TODO: support cloud ids
-            compatibilityTest.setFrameType(frameType);
+        compatibilityTest.setCloudIds(new int[]{Integer.parseInt(cloudId)});//TODO: support cloud ids
+        compatibilityTest.setFrameType(frameType);
 
-            int testTimeout = Integer.parseInt(timeOut);//TODO: check timeout format
-            compatibilityTest.setMaxDeviceRunTime(testTimeout);
-            compatibilityTest.setMaxTestRunTime(testTimeout);
+        int testTimeout = Integer.parseInt(timeOut);//TODO: check timeout format
+        compatibilityTest.setMaxDeviceRunTime(testTimeout);
+        compatibilityTest.setMaxTestRunTime(testTimeout);
 
-            if (!StringUtils.isBlank(projectId)) {
-                compatibilityTest.setProject(projectId);
-            }
-
-            return ctClient.test.startCompatibilityTest(compatibilityTest);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Start Test Failed : " + e.toString());
+        if (!StringUtils.isBlank(projectId)) {
+            compatibilityTest.setProject(projectId);
         }
-        LOGGER.log(Level.INFO, "finish Test.");
-        return null;
+
+        return ctClient.test.startCompatibilityTest(compatibilityTest);
     }
 
     int uploadApp(String appPath) throws CloudTestSDKException {
@@ -212,6 +206,7 @@ public class WTApiClient {
         String group_name;
         String cloud_name;
         int device_num;
+
         GroupInfo(String group_name, String group_id, String cloud_name, int device_num) {
             this.group_id = group_id;
             this.group_name = group_name;

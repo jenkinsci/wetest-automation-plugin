@@ -102,28 +102,49 @@ public class WTTestBuilder extends Builder {
         WTApiClient client = WTApp.getGlobalApiClient();
 
         try {
-            String absPath = WTUtils.getAbsPath(build.getWorkspace(), appPath);
-            if (!WTUtils.isExist(absPath)) {
-                listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(absPath));
+            //-----------Step: upload app file ------------------------------
+            String appAbsPath = WTUtils.getAbsPath(build.getWorkspace(), appPath);
+            if (!WTUtils.isExist(appAbsPath)) {
+                listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(appAbsPath));
                 return false;
             }
-            listener.getLogger().println(Messages.READY_UPLOAD_APPLICATION_FILE(absPath));
-            appId = client.uploadApp(absPath);
+            listener.getLogger().println(Messages.READY_UPLOAD_APPLICATION_FILE(appAbsPath));
+            appId = client.uploadApp(appAbsPath);
             if (appId <= 0) {
-                listener.getLogger().println(Messages.ERR_UPLOAD_APPLICATION_FILE(absPath));
+                listener.getLogger().println(Messages.ERR_UPLOAD_APPLICATION_FILE(appAbsPath));
                 return false;
             }
-            absPath = WTUtils.getAbsPath(build.getWorkspace(), scriptPath);
-            if (!WTUtils.isExist(absPath)) {
-                listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(absPath));
+
+            //-----------Step: upload script file ------------------------------
+            String scriptAbsPath = WTUtils.getAbsPath(build.getWorkspace(), scriptPath);
+            if (!WTUtils.isExist(scriptAbsPath)) {
+                listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(scriptAbsPath));
                 return false;
             }
-            listener.getLogger().println(Messages.READY_UPLOAD_SCRIPT_FILE(absPath));
-            scriptId = client.uploadScript(absPath);
+            listener.getLogger().println(Messages.READY_UPLOAD_SCRIPT_FILE(scriptAbsPath));
+            scriptId = client.uploadScript(scriptAbsPath);
             if (scriptId <= 0) {
-                listener.getLogger().println(Messages.ERR_UPLOAD_SCRIPT_FILE( absPath));
+                listener.getLogger().println(Messages.ERR_UPLOAD_SCRIPT_FILE(scriptAbsPath));
                 return false;
             }
+
+            listener.getLogger().println(Messages.READY_RUN_TEST());
+
+            //-----------Step: show all test configs ------------------------------
+            printTestConfig(listener);
+
+            //-----------Step: start test ------------------------------
+            TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId,
+                    groupId, timeout, cloudId, framework);
+            if (info != null) {
+                listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId, info.reportUrl));
+                listener.getLogger().println(Messages.SUCCESS_RUN_TEST());
+            } else {
+                listener.getLogger().println(Messages.FAILED_RUN_TEST());
+                return false;
+            }
+
+            //-----------Step: after test running ------------------------------
         } catch (CloudTestSDKException e) {
             listener.getLogger().println(Messages.ERR_SDK_REQUEST(e.toString()));
             return false;
@@ -132,20 +153,6 @@ public class WTTestBuilder extends Builder {
             return false;
         } catch (InterruptedException e) {
             listener.getLogger().println(Messages.ERR_SDK_UNKNOWN(e.toString()));
-            return false;
-        }
-
-        listener.getLogger().println(Messages.READY_RUN_TEST());
-
-        printTestConfig(listener);
-
-        TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId,
-                groupId, timeout, cloudId, framework);
-        if (info != null) {
-            listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId, info.reportUrl));
-            listener.getLogger().println(Messages.SUCCESS_RUN_TEST());
-        } else {
-            listener.getLogger().println(Messages.FAILED_RUN_TEST());
             return false;
         }
 

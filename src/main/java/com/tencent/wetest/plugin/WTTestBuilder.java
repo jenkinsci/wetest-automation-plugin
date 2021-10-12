@@ -3,10 +3,9 @@ package com.tencent.wetest.plugin;
 import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.test.models.TestInfo;
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
@@ -28,9 +27,6 @@ public class WTTestBuilder extends Builder {
     private String cloudId;
     private String framework;
     private String language;
-
-    private int appId;
-    private int scriptId;
 
     @DataBoundConstructor
     public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
@@ -93,36 +89,36 @@ public class WTTestBuilder extends Builder {
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        return runTest(build, launcher, listener);
+        return runTest(build, build.getWorkspace(), launcher, listener);
     }
 
-    private boolean runTest(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
         listener.getLogger().println(Messages.STARTED_RUN_TEST());
         listener.getLogger().println(Messages.STARTED_UPLOAD_TEST_FILE());
         WTApiClient client = WTApp.getGlobalApiClient();
 
         try {
             //-----------Step: upload app file ------------------------------
-            String appAbsPath = WTUtils.getAbsPath(build.getWorkspace(), appPath);
+            String appAbsPath = WTUtils.getAbsPath(workPath, appPath);
             if (!WTUtils.isExist(appAbsPath)) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(appAbsPath));
                 return false;
             }
             listener.getLogger().println(Messages.READY_UPLOAD_APPLICATION_FILE(appAbsPath));
-            appId = client.uploadApp(appAbsPath);
+            int appId = client.uploadApp(appAbsPath);
             if (appId <= 0) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_APPLICATION_FILE(appAbsPath));
                 return false;
             }
 
             //-----------Step: upload script file ------------------------------
-            String scriptAbsPath = WTUtils.getAbsPath(build.getWorkspace(), scriptPath);
+            String scriptAbsPath = WTUtils.getAbsPath(workPath, scriptPath);
             if (!WTUtils.isExist(scriptAbsPath)) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(scriptAbsPath));
                 return false;
             }
             listener.getLogger().println(Messages.READY_UPLOAD_SCRIPT_FILE(scriptAbsPath));
-            scriptId = client.uploadScript(scriptAbsPath);
+            int scriptId = client.uploadScript(scriptAbsPath);
             if (scriptId <= 0) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_SCRIPT_FILE(scriptAbsPath));
                 return false;
@@ -131,11 +127,11 @@ public class WTTestBuilder extends Builder {
             listener.getLogger().println(Messages.READY_RUN_TEST());
 
             //-----------Step: show all test configs ------------------------------
-            printTestConfig(listener);
+            printTestConfig(listener, appId, scriptId);
 
             //-----------Step: start test ------------------------------
             TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId,
-                    groupId, timeout, cloudId, framework);
+                    groupId, getTimeout(), cloudId, framework);
             if (info != null) {
                 listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId, info.reportUrl));
                 listener.getLogger().println(Messages.SUCCESS_RUN_TEST());
@@ -159,7 +155,7 @@ public class WTTestBuilder extends Builder {
         return true;
     }
 
-    private void printTestConfig(BuildListener listener) {
+    private void printTestConfig(TaskListener listener, int appId, int scriptId) {
         listener.getLogger().println(Messages.CONFIG_INFO_TIPS());
         listener.getLogger().println(Messages.CONFIG_INFO_HOST_URL(WTApp.getGlobalApiClient().getHostUrl()));
         listener.getLogger().println(Messages.CONFIG_INFO_USER_ID(WTApp.getGlobalApiClient().getSecretId()));

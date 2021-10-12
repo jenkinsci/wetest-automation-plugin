@@ -6,7 +6,7 @@
     <f:entry field="application" title="${%Application}">
         <f:textbox name="appPath" value="${instance.appPath}"/>
     </f:entry>
-    <f:entry field="testscript" title="${%Test Script}">
+    <f:entry field="testscript" title="${%TestScript}">
         <f:textbox name="scriptPath" value="${instance.scriptPath}"/>
     </f:entry>
     <f:entry field="framework" title="${%Framework}">
@@ -22,11 +22,8 @@
         <f:entry field="timeout" title="${%Timeout}">
             <f:textbox name="timeout" value="${instance.timeout}"/>
         </f:entry>
-        <f:entry field="cloudId" title="${%cloudId}">
+        <f:entry field="cloudId" title="${%CloudId}">
              <f:textbox name="cloudId" value="${instance.cloudId}"/>
-        </f:entry>
-        <f:entry field="frameType" title="${%frameType}">
-            <f:textbox name="frameType" value="${instance.frameType}"/>
         </f:entry>
     </f:advanced>
 </j:jelly>

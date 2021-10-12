@@ -22,4 +22,8 @@ class WTUtils {
             return workspaceURI.getPath() + trimmed;
         }
     }
+
+    static boolean isExist(String path) {
+        return new File(path).exists();
+    }
 }

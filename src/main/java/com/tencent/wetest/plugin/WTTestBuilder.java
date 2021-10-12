@@ -26,21 +26,21 @@ public class WTTestBuilder extends Builder {
     private String groupId;
     private String timeout;
     private String cloudId;
-    private String frameType;
     private String framework;
     private String language;
 
+    private int appId;
+    private int scriptId;
+
     @DataBoundConstructor
     public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
-                         String timeout, String cloudId, String frameType, String framework,
-                         String language) {
+                         String timeout, String cloudId, String framework, String language) {
         this.projectId = projectId;
         this.appPath = appPath;
         this.scriptPath = scriptPath;
         this.groupId = groupId;
         this.timeout = timeout;
         this.cloudId = cloudId;
-        this.frameType = frameType;
         this.framework = framework;
         this.language = language;
     }
@@ -75,13 +75,6 @@ public class WTTestBuilder extends Builder {
         return cloudId;
     }
 
-    public String getFrameType() {
-        if (StringUtils.isBlank(frameType)) {
-            frameType = WTApiClient.DEFAULT_FRAME_TYPE;
-        }
-        return frameType;
-    }
-
     public String getFramework() {
         return framework;
     }
@@ -104,57 +97,73 @@ public class WTTestBuilder extends Builder {
     }
 
     private boolean runTest(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        listener.getLogger().println("Run WeTest Automated Testing process started...");
-        listener.getLogger().println("Waiting for uploading files");
+        listener.getLogger().println(Messages.STARTED_RUN_TEST());
+        listener.getLogger().println(Messages.STARTED_UPLOAD_TEST_FILE());
         WTApiClient client = WTApp.getGlobalApiClient();
 
-        listener.getLogger().println("Uploading new app file: " + appPath);
-        int appId;
-        int scriptId;
         try {
             String absPath = WTUtils.getAbsPath(build.getWorkspace(), appPath);
+            if (!WTUtils.isExist(absPath)) {
+                listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(absPath));
+                return false;
+            }
+            listener.getLogger().println(Messages.READY_UPLOAD_APPLICATION_FILE(absPath));
             appId = client.uploadApp(absPath);
             if (appId <= 0) {
-                listener.getLogger().println("Uploading app file failed. new: " + absPath + ", old:" + appPath);
+                listener.getLogger().println(Messages.ERR_UPLOAD_APPLICATION_FILE(absPath));
                 return false;
             }
-            listener.getLogger().println("Uploading new script file: " + scriptPath);
             absPath = WTUtils.getAbsPath(build.getWorkspace(), scriptPath);
+            if (!WTUtils.isExist(absPath)) {
+                listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(absPath));
+                return false;
+            }
+            listener.getLogger().println(Messages.READY_UPLOAD_SCRIPT_FILE(absPath));
             scriptId = client.uploadScript(absPath);
             if (scriptId <= 0) {
-                listener.getLogger().println("Uploading script file failed. new: " + absPath + ", old:" + scriptPath);
+                listener.getLogger().println(Messages.ERR_UPLOAD_SCRIPT_FILE( absPath));
                 return false;
             }
-        } catch (CloudTestSDKException | IOException | InterruptedException e) {
-            listener.getLogger().println("Uploading file failed, more exception info: " + e.toString());
+        } catch (CloudTestSDKException e) {
+            listener.getLogger().println(Messages.ERR_SDK_REQUEST(e.toString()));
+            return false;
+        } catch (IOException e) {
+            listener.getLogger().println(Messages.ERR_SDK_CONNECT(e.toString()));
+            return false;
+        } catch (InterruptedException e) {
+            listener.getLogger().println(Messages.ERR_SDK_UNKNOWN(e.toString()));
             return false;
         }
 
-        listener.getLogger().println("Task Configs :" +
-                "\nHostUrl: " + WTApp.getGlobalApiClient().getHostUrl() +
-                "\nUserId: " + WTApp.getGlobalApiClient().getSecretId() +
-                "\nVersion: " + WTApiClient.VERSION +
-                "\nProjectId: " + projectId +
-                "\nAppId: " + appId +
-                "\nScriptId: " + scriptId +
-                "\nGroupId: " + groupId +
-                "\ncloudId: " + cloudId +
-                "\nFrameType: " + frameType +
-                "\nTimeout: " + timeout
-        );
+        listener.getLogger().println(Messages.READY_RUN_TEST());
 
-        listener.getLogger().println("Running tests");
-        TestInfo info = WTApp.getGlobalApiClient().startTest(projectId,
-                appId, scriptId, groupId, timeout, cloudId, frameType);
+        printTestConfig(listener);
+
+        TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId,
+                groupId, timeout, cloudId, framework);
         if (info != null) {
-            listener.getLogger().println("Start Test, testId: " + info.testId + ", report url: " + info.reportUrl);
-            listener.getLogger().println("Run test in WeTest succeeded");
+            listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId, info.reportUrl));
+            listener.getLogger().println(Messages.SUCCESS_RUN_TEST());
         } else {
-            listener.getLogger().println("Run test in WeTest failed");
+            listener.getLogger().println(Messages.FAILED_RUN_TEST());
             return false;
         }
 
         return true;
+    }
+
+    private void printTestConfig(BuildListener listener) {
+        listener.getLogger().println(Messages.CONFIG_INFO_TIPS());
+        listener.getLogger().println(Messages.CONFIG_INFO_HOST_URL(WTApp.getGlobalApiClient().getHostUrl()));
+        listener.getLogger().println(Messages.CONFIG_INFO_USER_ID(WTApp.getGlobalApiClient().getSecretId()));
+        listener.getLogger().println(Messages.CONFIG_INFO_PLUGIN_VERSION(WTApiClient.VERSION));
+        listener.getLogger().println(Messages.CONFIG_INFO_PROJECT_ID(projectId));
+        listener.getLogger().println(Messages.CONFIG_INFO_APP_ID(appId));
+        listener.getLogger().println(Messages.CONFIG_INFO_SCRIPT_ID(scriptId));
+        listener.getLogger().println(Messages.CONFIG_INFO_GROUP_Id(groupId));
+        listener.getLogger().println(Messages.CONFIG_INFO_FRAME_TYPE(framework));
+        listener.getLogger().println(Messages.CONFIG_INFO_LANG(language));
+        listener.getLogger().println(Messages.CONFIG_INFO_TIMEOUT(timeout));
     }
 
     @Symbol("greet")
@@ -201,7 +210,7 @@ public class WTTestBuilder extends Builder {
         }
 
         default ListBoxModel doFillFrameworkItems() {
-            return new ListBoxModel().add("Appium");
+            return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE);
         }
 
         default ListBoxModel doFillLanguageItems() {

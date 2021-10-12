@@ -27,7 +27,7 @@ public class WTApiClient {
     public static final String DEFAULT_CLOUD_TOOL = "cloudtest";
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
     public static final int DEFAULT_CLOUD_ID = 2;
-    public static final String DEFAULT_FRAME_TYPE = "uitest";
+    public static final String DEFAULT_FRAME_TYPE = "Appium";
 
     private static final String CHOOSE_TYPE_DEVICE_IDS ="deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS ="modelids";
@@ -44,7 +44,7 @@ public class WTApiClient {
     private ClientProfile profile;
     private CTClient ctClient;
 
-    ModelList[] modelList;
+    private ModelList[] modelList;
 
     private String chooseType = CHOOSE_TYPE_DEVICE_IDS;
 
@@ -69,6 +69,11 @@ public class WTApiClient {
         profile = new ClientProfile(ClientProfile.SIGN_SHA256, httpProfile);
         credential = new Credential(secretId, secretKey);
         ctClient = new CTClient(credential, profile);
+
+        if (modelList == null) {
+            // init model list
+            getGroupIds("groupId");
+        }
     }
 
     public String getSecretId() {
@@ -94,7 +99,7 @@ public class WTApiClient {
                 "hostUrl:" + hostUrl + "\n}";
     }
 
-    TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeout,
+    TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeOut,
                        String cloudId, String frameType) {
         try {
             CompatibilityTest compatibilityTest = new CompatibilityTest();
@@ -107,7 +112,7 @@ public class WTApiClient {
             compatibilityTest.setCloudIds(new int[]{Integer.parseInt(cloudId)});//TODO: support cloud ids
             compatibilityTest.setFrameType(frameType);
 
-            int testTimeout = Integer.parseInt(timeout);//TODO: check timeout format
+            int testTimeout = Integer.parseInt(timeOut);//TODO: check timeout format
             compatibilityTest.setMaxDeviceRunTime(testTimeout);
             compatibilityTest.setMaxTestRunTime(testTimeout);
 
@@ -156,9 +161,9 @@ public class WTApiClient {
         return projects;
     }
 
-    List<GroupInfo> getGroupIds(String projectId) throws CloudTestSDKException {
+    List<GroupInfo> getGroupIds(String groupId) throws CloudTestSDKException {
         List<GroupInfo> groups = new ArrayList<>();
-        modelList = ctClient.device.getModelList(projectId);
+        modelList = ctClient.device.getModelList(groupId);
         if (modelList != null) {
             for (ModelList modelList : modelList) {
                 groups.add(new GroupInfo(modelList.name, modelList.name,
@@ -187,7 +192,7 @@ public class WTApiClient {
         return null;
     }
 
-    public int GetDeviceNums(ModelList list) {
+    private int GetDeviceNums(ModelList list) {
         return list.filterType == MODEL_LIST_FILTER_TYPE_MODEL ?
                 list.modelIds.length : list.deviceIds.length;
     }

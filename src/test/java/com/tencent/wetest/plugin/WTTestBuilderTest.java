@@ -18,13 +18,11 @@ public class WTTestBuilderTest {
                 System.getenv("CT_SECRET_KEY"),
                 System.getenv("CT_API_DOMAIN"), "cloudtest","http://"));
 
-        WTTestBuilder builder = new WTTestBuilder("", "/Users/kiwim/work/code/config/landtest.apk",
-                "/Users/kiwim/work/code/config/sleep1m.zip", "VIVO测试组",
+        WTTestBuilder builder = new WTTestBuilder("", "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\landtest.apk",
+                "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\sleep1m.zip", "VIVO测试组",
                 String.valueOf(WTApiClient.DEFAULT_TIMEOUT),
                 String.valueOf(WTApiClient.DEFAULT_CLOUD_ID),
-                WTApiClient.DEFAULT_FRAME_TYPE, "", "");
-
-        WTApp.getGlobalApiClient().getGroupIds("projectId");
+                WTApiClient.DEFAULT_FRAME_TYPE, "");
 
         project.getBuildersList().add(builder);
 

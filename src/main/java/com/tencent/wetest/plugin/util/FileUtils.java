@@ -1,4 +1,4 @@
-package com.tencent.wetest.plugin;
+package com.tencent.wetest.plugin.util;
 
 import hudson.FilePath;
 import org.apache.commons.lang.StringUtils;
@@ -8,9 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
-class WTUtils {
+public class FileUtils {
 
-    static String getAbsPath(FilePath workspace, String path) throws IOException, InterruptedException {
+    public static String getAbsPath(FilePath workspace, String path) throws IOException, InterruptedException {
         if (TextUtils.isBlank(path)) {
             return StringUtils.EMPTY;
         }
@@ -23,7 +23,7 @@ class WTUtils {
         }
     }
 
-    static boolean isExist(String path) {
+    public static boolean isExist(String path) {
         return new File(path).exists();
     }
 }

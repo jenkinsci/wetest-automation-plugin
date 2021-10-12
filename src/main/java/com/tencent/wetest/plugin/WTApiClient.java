@@ -11,6 +11,8 @@ import com.cloudtestapi.test.models.CompatibilityTest;
 import com.cloudtestapi.test.models.TestInfo;
 import com.cloudtestapi.upload.models.App;
 import com.cloudtestapi.upload.models.Script;
+import com.tencent.wetest.plugin.model.GroupInfo;
+import com.tencent.wetest.plugin.model.ProjectInfo;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -92,13 +94,6 @@ public class WTApiClient {
         return toolPath;
     }
 
-    @Override
-    public String toString() {
-        return "{\nsecretId:" + secretId + ",\n" +
-                "secretKey:" + secretKey + ",\n" +
-                "hostUrl:" + hostUrl + "\n}";
-    }
-
     TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeOut,
                        String cloudId, String frameType) throws CloudTestSDKException {
         CompatibilityTest compatibilityTest = new CompatibilityTest();
@@ -151,6 +146,8 @@ public class WTApiClient {
             for (Project project : projectResp) {
                 projects.add(new ProjectInfo(project.projectName, project.projectId));
             }
+        } else {
+            LOGGER.log(Level.SEVERE, "Get project ids failed: result is null");
         }
         return projects;
     }
@@ -163,24 +160,36 @@ public class WTApiClient {
                 groups.add(new GroupInfo(modelList.name, modelList.name,
                         modelList.cloudName, GetDeviceNums(modelList)));
             }
+        } else {
+            LOGGER.log(Level.SEVERE, "Get group ids failed: result is null");
         }
         return groups;
     }
 
     private int[] getDeviceIdsByGroup(String groupName) {
-        if (modelList != null) {
-            for (ModelList modelList : modelList) {
-                if (modelList.name.equals(groupName)) {
-                    if (modelList.filterType == MODEL_LIST_FILTER_TYPE_MODEL) {
-                        chooseType = CHOOSE_TYPE_MODEL_IDS;
-                        return modelList.modelIds;
-                    }
+        if (modelList == null) {
+            // init modelList by call getGroupIds(String groupId).
+            return null;
+        }
 
-                    if (modelList.filterType == MODEL_LIST_FILTER_TYPE_DEVICE) {
-                        chooseType = CHOOSE_TYPE_DEVICE_IDS;
-                        return modelList.deviceIds;
-                    }
+        for (ModelList modelList : modelList) {
+            if (!modelList.name.equals(groupName)) {
+                continue;
+            }
+            switch (modelList.filterType) {
+                case MODEL_LIST_FILTER_TYPE_MODEL: {
+                    chooseType = CHOOSE_TYPE_MODEL_IDS;
+                    return modelList.modelIds;
                 }
+                case MODEL_LIST_FILTER_TYPE_DEVICE: {
+                    chooseType = CHOOSE_TYPE_DEVICE_IDS;
+                    return modelList.deviceIds;
+                }
+                default:
+                    //not support filter type
+                    LOGGER.log(Level.SEVERE, "Get devices by group failed: unknown filter type "
+                            + modelList.filterType);
+                    return null;
             }
         }
         return null;
@@ -189,29 +198,5 @@ public class WTApiClient {
     private int GetDeviceNums(ModelList list) {
         return list.filterType == MODEL_LIST_FILTER_TYPE_MODEL ?
                 list.modelIds.length : list.deviceIds.length;
-    }
-
-    static class ProjectInfo {
-        String project_id;
-        String project_name;
-
-        ProjectInfo(String project_name, String project_id) {
-            this.project_id = project_id;
-            this.project_name = project_name;
-        }
-    }
-
-    static class GroupInfo {
-        String group_id;
-        String group_name;
-        String cloud_name;
-        int device_num;
-
-        GroupInfo(String group_name, String group_id, String cloud_name, int device_num) {
-            this.group_id = group_id;
-            this.group_name = group_name;
-            this.cloud_name = cloud_name;
-            this.device_num = device_num;
-        }
     }
 }

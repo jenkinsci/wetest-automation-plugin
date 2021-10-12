@@ -2,6 +2,9 @@ package com.tencent.wetest.plugin;
 
 import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.test.models.TestInfo;
+import com.tencent.wetest.plugin.model.GroupInfo;
+import com.tencent.wetest.plugin.model.ProjectInfo;
+import com.tencent.wetest.plugin.util.FileUtils;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -88,19 +91,21 @@ public class WTTestBuilder extends Builder {
     }
 
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+            throws InterruptedException, IOException {
         return runTest(build, build.getWorkspace(), launcher, listener);
     }
 
-    public boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
+    public boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher, TaskListener listener)
+            throws InterruptedException, IOException {
         listener.getLogger().println(Messages.STARTED_RUN_TEST());
         listener.getLogger().println(Messages.STARTED_UPLOAD_TEST_FILE());
         WTApiClient client = WTApp.getGlobalApiClient();
 
         try {
             //-----------Step: upload app file ------------------------------
-            String appAbsPath = WTUtils.getAbsPath(workPath, appPath);
-            if (!WTUtils.isExist(appAbsPath)) {
+            String appAbsPath = FileUtils.getAbsPath(workPath, appPath);
+            if (!FileUtils.isExist(appAbsPath)) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(appAbsPath));
                 return false;
             }
@@ -112,8 +117,8 @@ public class WTTestBuilder extends Builder {
             }
 
             //-----------Step: upload script file ------------------------------
-            String scriptAbsPath = WTUtils.getAbsPath(workPath, scriptPath);
-            if (!WTUtils.isExist(scriptAbsPath)) {
+            String scriptAbsPath = FileUtils.getAbsPath(workPath, scriptPath);
+            if (!FileUtils.isExist(scriptAbsPath)) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(scriptAbsPath));
                 return false;
             }
@@ -171,7 +176,8 @@ public class WTTestBuilder extends Builder {
 
     @Symbol("greet")
     @Extension
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> implements Serializable, WTStepDescriptorUtil {
+    public static final class DescriptorImpl extends BuildStepDescriptor<Builder>
+            implements Serializable, WTStepDescriptorUtil {
 
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
@@ -191,8 +197,8 @@ public class WTTestBuilder extends Builder {
             ListBoxModel projectIds = new ListBoxModel();
             projectIds.add(EMPTY_OPTION);
             try {
-                for (WTApiClient.ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
-                    projectIds.add(info.project_name, info.project_id);
+                for (ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
+                    projectIds.add(info.getProjectName(), info.getProjectId());
                 }
             } catch (CloudTestSDKException e) {
             }
@@ -202,9 +208,9 @@ public class WTTestBuilder extends Builder {
         default ListBoxModel doFillGroupIdItems(@QueryParameter String projectId) {
             ListBoxModel projectIds = new ListBoxModel();
             try {
-                for (WTApiClient.GroupInfo info : WTApp.getGlobalApiClient().getGroupIds(projectId)) {
-                    projectIds.add(String.format("%s(%s, %d)", info.group_name, info.cloud_name,
-                            info.device_num), info.group_id);
+                for (GroupInfo info : WTApp.getGlobalApiClient().getGroupIds(projectId)) {
+                    projectIds.add(String.format("%s(%s, %d)", info.getGroupName(), info.getCloudName(),
+                            info.getDeviceNum()), info.getGroupId());
                 }
             } catch (CloudTestSDKException e) {
                 projectIds.add(EMPTY_OPTION);

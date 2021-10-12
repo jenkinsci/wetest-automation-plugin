@@ -78,7 +78,8 @@ public class WTSettings implements Describable<WTSettings> {
             super.load();
         }
 
-        public FormValidation doSaveData(String secretId, String secretKey, String hostUrl, String toolPath, String protocol) {
+        public FormValidation doSaveData(String secretId, String secretKey, String hostUrl, String toolPath,
+                                         String protocol) {
             setHostUrl(hostUrl);
             setSecretId(secretId);
             setSecretKey(secretKey);
@@ -143,7 +144,11 @@ public class WTSettings implements Describable<WTSettings> {
             DescriptorImpl that = (DescriptorImpl) o;
             return Objects.equals(secretId, that.secretId) &&
                     Objects.equals(secretKey, that.secretKey) &&
-                    Objects.equals(hostUrl, that.hostUrl);
+                    Objects.equals(hostUrl, that.hostUrl) &&
+                    Objects.equals(toolPath, that.toolPath) &&
+                    Objects.equals(protocol, that.protocol)
+
+                    ;
         }
 
         @Override

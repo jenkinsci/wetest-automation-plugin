@@ -108,7 +108,7 @@ public class WTApiClient {
         automationTest.setDeviceChooseType(chooseType);
 
         automationTest.setFrameType(frameType);
-        automationTest.setParserTypeBody(parserType);
+        automationTest.setParserType(parserType);
         int testTimeout = Integer.parseInt(timeOut);
         int caseTestTimeout = Integer.parseInt(caseTimeOut);
         automationTest.setMaxTestRunTime(testTimeout);

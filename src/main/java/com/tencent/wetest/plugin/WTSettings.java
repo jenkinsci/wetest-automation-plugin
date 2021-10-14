@@ -95,11 +95,12 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setSecretId(String secretId) {
-            this.secretId = secretId.trim();
+            if (!StringUtils.isBlank(secretId)) this.secretId = secretId.trim();
         }
 
         public void setSecretKey(String secretKey) {
-            this.secretKey = Secret.fromString(secretKey).getEncryptedValue().trim();
+            if (!StringUtils.isBlank(secretKey))
+                this.secretKey = Secret.fromString(secretKey).getEncryptedValue().trim();
         }
 
         public String getSecretKey() {
@@ -107,7 +108,7 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setHostUrl(String hostUrl) {
-            this.hostUrl = hostUrl.trim();
+            if (!StringUtils.isBlank(hostUrl)) this.hostUrl = hostUrl.trim();
         }
 
         public String getHostUrl() {
@@ -118,7 +119,7 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setToolPath(String toolPath) {
-            this.toolPath = toolPath.trim();
+            if (!StringUtils.isBlank(toolPath)) this.toolPath = toolPath.trim();
         }
 
         public String getToolPath() {
@@ -126,7 +127,7 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setProtocol(String protocol) {
-            this.protocol = protocol.trim();
+            if (!StringUtils.isBlank(protocol)) this.protocol = protocol.trim();
         }
 
         public String getProtocol() {

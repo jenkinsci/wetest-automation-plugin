@@ -36,7 +36,7 @@ public class WTTestBuilder extends Builder {
 
     @DataBoundConstructor
     public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
-                         String timeout,  String frameType, String parserType) {
+                         String timeout,  String frameType, String parserType, String caseTimeout) {
         this.projectId = projectId;
         this.appPath = appPath;
         this.scriptPath = scriptPath;
@@ -44,6 +44,7 @@ public class WTTestBuilder extends Builder {
         this.timeout = timeout;
         this.frameType = frameType;
         this.parserType = parserType;
+        this.caseTimeout = caseTimeout;
     }
 
     public String getAppPath() {
@@ -67,6 +68,10 @@ public class WTTestBuilder extends Builder {
             timeout = String.valueOf(WTApiClient.DEFAULT_TIMEOUT);
         }
         return timeout;
+    }
+
+    public void setCaseTimeout(String caseTimeout) {
+        this.caseTimeout = caseTimeout;
     }
 
     public String getCaseTimeout() {
@@ -172,8 +177,9 @@ public class WTTestBuilder extends Builder {
         listener.getLogger().println(Messages.CONFIG_INFO_SCRIPT_ID(scriptId));
         listener.getLogger().println(Messages.CONFIG_INFO_GROUP_Id(groupId));
         listener.getLogger().println(Messages.CONFIG_INFO_FRAME_TYPE(frameType));
-        listener.getLogger().println(Messages.CONFIG_INFO_LANG(parserType));
+        listener.getLogger().println(Messages.CONFIG_INFO_PARSE_TYPE(parserType));
         listener.getLogger().println(Messages.CONFIG_INFO_TIMEOUT(timeout));
+        listener.getLogger().println(Messages.CONFIG_INFO_CASE_TIMEOUT(caseTimeout));
     }
 
     @Symbol("greet")

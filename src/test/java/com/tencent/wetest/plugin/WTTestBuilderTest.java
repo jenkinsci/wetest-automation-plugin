@@ -16,12 +16,16 @@ public class WTTestBuilderTest {
         FreeStyleProject project = jenkins.createFreeStyleProject();
         WTApp.initGlobalSettings(new WTSettings.DescriptorImpl(System.getenv("CT_SECRET_ID"),
                 System.getenv("CT_SECRET_KEY"),
-                System.getenv("CT_API_DOMAIN"), "cloudtest","http://"));
+                System.getenv("CT_API_DOMAIN"), "cloudtest","https://"));
 
-        WTTestBuilder builder = new WTTestBuilder("", "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\landtest.apk",
-                "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\sleep1m.zip", "VIVO测试组",
+        WTTestBuilder builder = new WTTestBuilder("",
+                System.getenv("CT_TEST_APK"),
+                System.getenv("CT_TEST_ZIP"),
+                "jenkins-test",
                 String.valueOf(WTApiClient.DEFAULT_TIMEOUT),
-                WTApiClient.DEFAULT_FRAME_TYPE, "");
+                WTApiClient.DEFAULT_FRAME_TYPE,
+                "custom",
+                String.valueOf(WTApiClient.DEFAULT_TIMEOUT));
 
         project.getBuildersList().add(builder);
 

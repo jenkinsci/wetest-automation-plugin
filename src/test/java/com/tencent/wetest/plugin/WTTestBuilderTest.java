@@ -21,7 +21,6 @@ public class WTTestBuilderTest {
         WTTestBuilder builder = new WTTestBuilder("", "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\landtest.apk",
                 "\\D:\\work\\code\\cloudtesting\\jenkins\\ctapi-plugin\\demo\\demo\\work\\workspace\\ctapitest\\sleep1m.zip", "VIVO测试组",
                 String.valueOf(WTApiClient.DEFAULT_TIMEOUT),
-                String.valueOf(WTApiClient.DEFAULT_CLOUD_ID),
                 WTApiClient.DEFAULT_FRAME_TYPE, "");
 
         project.getBuildersList().add(builder);

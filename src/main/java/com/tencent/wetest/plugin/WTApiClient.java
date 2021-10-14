@@ -7,6 +7,7 @@ import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.common.profile.ClientProfile;
 import com.cloudtestapi.common.profile.HttpProfile;
 import com.cloudtestapi.device.models.ModelList;
+import com.cloudtestapi.test.models.AutomationTest;
 import com.cloudtestapi.test.models.CompatibilityTest;
 import com.cloudtestapi.test.models.TestInfo;
 import com.cloudtestapi.upload.models.App;
@@ -28,11 +29,14 @@ public class WTApiClient {
     public static final int DEFAULT_TIMEOUT = 600;
     public static final String DEFAULT_CLOUD_TOOL = "cloudtest";
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
-    public static final int DEFAULT_CLOUD_ID = 2;
-    public static final String DEFAULT_FRAME_TYPE = "Appium";
+    public static final String DEFAULT_FRAME_TYPE = "appium";
 
     private static final String CHOOSE_TYPE_DEVICE_IDS = "deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS = "modelids";
+
+    public static final int DEFAULT_CASE_TIMEOUT = 600;
+
+    public static final String DEFAULT_ORDER_ACCOUNT_TYPE = "personal";
 
     public static final int MODEL_LIST_FILTER_TYPE_MODEL = 1;
     public static final int MODEL_LIST_FILTER_TYPE_DEVICE = 2;
@@ -95,26 +99,27 @@ public class WTApiClient {
     }
 
     TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeOut,
-                       String cloudId, String frameType) throws CloudTestSDKException {
-        CompatibilityTest compatibilityTest = new CompatibilityTest();
-        compatibilityTest.setAppId(appId);
-        compatibilityTest.setScriptId(scriptId);
-        compatibilityTest.setDevices(getDeviceIdsByGroup(groupId));
+                       String frameType, String parserType, String caseTimeOut) throws CloudTestSDKException {
+        AutomationTest automationTest = new AutomationTest();
+        automationTest.setAppId(appId);
+        automationTest.setScriptId(scriptId);
+        automationTest.setDevices(getDeviceIdsByGroup(groupId));
         // choose type set by getDeviceIdsByGroup()
-        compatibilityTest.setDeviceChooseType(chooseType);
+        automationTest.setDeviceChooseType(chooseType);
 
-        compatibilityTest.setCloudIds(new int[]{Integer.parseInt(cloudId)});//TODO: support cloud ids
-        compatibilityTest.setFrameType(frameType);
-
-        int testTimeout = Integer.parseInt(timeOut);//TODO: check timeout format
-        compatibilityTest.setMaxDeviceRunTime(testTimeout);
-        compatibilityTest.setMaxTestRunTime(testTimeout);
+        automationTest.setFrameType(frameType);
+        automationTest.setParserTypeBody(parserType);
+        int testTimeout = Integer.parseInt(timeOut);
+        int caseTestTimeout = Integer.parseInt(caseTimeOut);
+        automationTest.setMaxTestRunTime(testTimeout);
+        automationTest.setMaxCaseRuntime(caseTestTimeout);
+        automationTest.setOrderAccountType(DEFAULT_ORDER_ACCOUNT_TYPE);
 
         if (!StringUtils.isBlank(projectId)) {
-            compatibilityTest.setProject(projectId);
+            automationTest.setProject(projectId);
         }
 
-        return ctClient.test.startCompatibilityTest(compatibilityTest);
+        return ctClient.test.startAutomationTest(automationTest);
     }
 
     int uploadApp(String appPath) throws CloudTestSDKException {

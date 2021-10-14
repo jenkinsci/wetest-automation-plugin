@@ -11,6 +11,7 @@ import hudson.Launcher;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
@@ -22,26 +23,27 @@ import java.io.Serializable;
 
 public class WTTestBuilder extends Builder {
 
+    public static final int DEFAULT_MAX_TIMEOUT = 7200;
+
     private String projectId;
     private String appPath;
     private String scriptPath;
     private String groupId;
     private String timeout;
-    private String cloudId;
-    private String framework;
-    private String language;
+    private String frameType;
+    private String parserType;
+    private String caseTimeout;
 
     @DataBoundConstructor
     public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
-                         String timeout, String cloudId, String framework, String language) {
+                         String timeout,  String frameType, String parserType) {
         this.projectId = projectId;
         this.appPath = appPath;
         this.scriptPath = scriptPath;
         this.groupId = groupId;
         this.timeout = timeout;
-        this.cloudId = cloudId;
-        this.framework = framework;
-        this.language = language;
+        this.frameType = frameType;
+        this.parserType = parserType;
     }
 
     public String getAppPath() {
@@ -67,27 +69,27 @@ public class WTTestBuilder extends Builder {
         return timeout;
     }
 
-    public String getCloudId() {
-        if (StringUtils.isBlank(cloudId)) {
-            cloudId = String.valueOf(WTApiClient.DEFAULT_CLOUD_ID);
+    public String getCaseTimeout() {
+        if (StringUtils.isBlank(caseTimeout)) {
+            caseTimeout = String.valueOf(WTApiClient.DEFAULT_CASE_TIMEOUT);
         }
-        return cloudId;
+        return caseTimeout;
     }
 
-    public String getFramework() {
-        return framework;
+    public String getFrameType() {
+        return frameType;
     }
 
-    public void setFramework(String framework) {
-        this.framework = framework;
+    public void setFrameType(String frameType) {
+        this.frameType = frameType;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getParserType() {
+        return parserType;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public void setParserType(String parserType) {
+        this.parserType = parserType;
     }
 
     @Override
@@ -136,7 +138,7 @@ public class WTTestBuilder extends Builder {
 
             //-----------Step: start test ------------------------------
             TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId,
-                    groupId, getTimeout(), cloudId, framework);
+                    groupId, timeout, frameType, parserType, caseTimeout);
             if (info != null) {
                 listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId, info.reportUrl));
                 listener.getLogger().println(Messages.SUCCESS_RUN_TEST());
@@ -169,8 +171,8 @@ public class WTTestBuilder extends Builder {
         listener.getLogger().println(Messages.CONFIG_INFO_APP_ID(appId));
         listener.getLogger().println(Messages.CONFIG_INFO_SCRIPT_ID(scriptId));
         listener.getLogger().println(Messages.CONFIG_INFO_GROUP_Id(groupId));
-        listener.getLogger().println(Messages.CONFIG_INFO_FRAME_TYPE(framework));
-        listener.getLogger().println(Messages.CONFIG_INFO_LANG(language));
+        listener.getLogger().println(Messages.CONFIG_INFO_FRAME_TYPE(frameType));
+        listener.getLogger().println(Messages.CONFIG_INFO_LANG(parserType));
         listener.getLogger().println(Messages.CONFIG_INFO_TIMEOUT(timeout));
     }
 
@@ -207,6 +209,9 @@ public class WTTestBuilder extends Builder {
 
         default ListBoxModel doFillGroupIdItems(@QueryParameter String projectId) {
             ListBoxModel projectIds = new ListBoxModel();
+            if (projectId.isEmpty()) {
+                return projectIds;
+            }
             try {
                 for (GroupInfo info : WTApp.getGlobalApiClient().getGroupIds(projectId)) {
                     projectIds.add(String.format("%s(%s, %d)", info.getGroupName(), info.getCloudName(),
@@ -218,12 +223,34 @@ public class WTTestBuilder extends Builder {
             return projectIds;
         }
 
-        default ListBoxModel doFillFrameworkItems() {
+        default ListBoxModel doFillFrameTypeItems() {
             return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE);
         }
 
-        default ListBoxModel doFillLanguageItems() {
-            return new ListBoxModel().add("python").add("java");
+        default ListBoxModel doFillParserTypeItems() {
+            return new ListBoxModel().add("pytest").add("custom");
+        }
+
+        default FormValidation doCheckTimeout(@QueryParameter String value) {
+            return CheckTimeout(value);
+        }
+
+        default FormValidation doCheckCaseTimeout(@QueryParameter String value) {
+            return CheckTimeout(value);
+        }
+
+        default FormValidation CheckTimeout(String value) {
+            int timeout;
+            try {
+                timeout = Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                return FormValidation.error(Messages.ERROR_INVALID_TIMEOUT_TYPE());
+            }
+
+            if (timeout > DEFAULT_MAX_TIMEOUT) {
+                return FormValidation.error(Messages.ERROR_INVALID_TIMEOUT_VALUE());
+            }
+            return FormValidation.ok();
         }
     }
 }

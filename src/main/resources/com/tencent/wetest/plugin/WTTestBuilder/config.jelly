@@ -4,26 +4,28 @@
         <f:select/>
     </f:entry>
     <f:entry field="application" title="${%Application}">
-        <f:textbox name="appPath" value="${instance.appPath}"/>
+        <f:textbox name="appPath" value="${instance.appPath}"
+                   placeholder="Test app absolute path"/>
     </f:entry>
     <f:entry field="testscript" title="${%TestScript}">
-        <f:textbox name="scriptPath" value="${instance.scriptPath}"/>
+        <f:textbox name="scriptPath" value="${instance.scriptPath}"
+                   placeholder="Test script absolute path"/>
     </f:entry>
-    <f:entry field="framework" title="${%Framework}">
+    <f:entry field="frameType" title="${%FrameType}">
         <f:select/>
     </f:entry>
-    <f:entry field="language" title="${%Language}">
+    <f:entry field="parserType" title="${%ParserType}">
         <f:select/>
     </f:entry>
     <f:entry field="groupId" title="${%Device group}">
         <f:select/>
     </f:entry>
     <f:advanced>
-        <f:entry field="timeout" title="${%Timeout}">
+        <f:entry field="timeout" title="${%Test timeout}">
             <f:textbox name="timeout" value="${instance.timeout}"/>
         </f:entry>
-        <f:entry field="cloudId" title="${%CloudId}">
-             <f:textbox name="cloudId" value="${instance.cloudId}"/>
+        <f:entry field="caseTimeout" title="${%Case timeout}">
+            <f:textbox name="caseTimeout" value="${instance.caseTimeout}"/>
         </f:entry>
     </f:advanced>
 </j:jelly>

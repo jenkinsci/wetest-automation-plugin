@@ -7,7 +7,7 @@
         <f:entry
                 field="saveData"/>
         <f:block>
-            <f:entry title="${%Secret Id}">
+            <f:entry title="${%Secret id}">
                 <f:textbox name="secretId" value="${descriptor.getSecretId()}"/>
             </f:entry>
             <f:entry title="${%Secret Key}">

@@ -17,14 +17,16 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 public class WTTestBuilder extends Builder {
 
-    public static final int DEFAULT_MAX_TIMEOUT = 7200;
-
+    public static final int DEFAULT_MAX_TIMEOUT = 90;
+    public static final int DEFAULT_MIN_TIMEOUT = 15;
+    public static final int DEFAULT_MAX_CASE_TIMEOUT = 30;
+    public static final int DEFAULT_MIN_CASE_TIMEOUT = 5;
     private String projectId;
     private String appPath;
     private String scriptPath;
@@ -33,10 +35,12 @@ public class WTTestBuilder extends Builder {
     private String frameType;
     private String parserType;
     private String caseTimeout;
+    private String targetOsType;
 
     @DataBoundConstructor
     public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
-                         String timeout,  String frameType, String parserType, String caseTimeout) {
+                         String timeout,  String frameType, String parserType, String caseTimeout,
+                         String targetOsType) {
         this.projectId = projectId;
         this.appPath = appPath;
         this.scriptPath = scriptPath;
@@ -45,6 +49,7 @@ public class WTTestBuilder extends Builder {
         this.frameType = frameType;
         this.parserType = parserType;
         this.caseTimeout = caseTimeout;
+        this.targetOsType = targetOsType;
     }
 
     public String getAppPath() {
@@ -95,6 +100,14 @@ public class WTTestBuilder extends Builder {
 
     public void setParserType(String parserType) {
         this.parserType = parserType;
+    }
+
+    public String getTargetOsType() {
+        return targetOsType;
+    }
+
+    public void setTargetOsType(String targetOsType) {
+        this.targetOsType = targetOsType;
     }
 
     @Override
@@ -203,7 +216,6 @@ public class WTTestBuilder extends Builder {
 
         default ListBoxModel doFillProjectIdItems() {
             ListBoxModel projectIds = new ListBoxModel();
-            projectIds.add(EMPTY_OPTION);
             try {
                 for (ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
                     projectIds.add(info.getProjectName(), info.getProjectId());
@@ -214,20 +226,45 @@ public class WTTestBuilder extends Builder {
         }
 
         default ListBoxModel doFillGroupIdItems(@QueryParameter String projectId) {
-            ListBoxModel projectIds = new ListBoxModel();
+            ListBoxModel groupIds = new ListBoxModel();
             if (projectId.isEmpty()) {
-                return projectIds;
+                return groupIds;
             }
             try {
                 for (GroupInfo info : WTApp.getGlobalApiClient().getGroupIds(projectId)) {
-                    projectIds.add(String.format("%s(%s, %d)", info.getGroupName(), info.getCloudName(),
+                    groupIds.add(String.format("%s(%s, %ddevices)", info.getGroupName(), info.getCloudName(),
                             info.getDeviceNum()), info.getGroupId());
                 }
             } catch (CloudTestSDKException e) {
-                projectIds.add(EMPTY_OPTION);
+                groupIds.add(EMPTY_OPTION);
             }
-            return projectIds;
+            return groupIds;
         }
+
+        default FormValidation doCheckProjectId() {
+            try {
+                List<ProjectInfo> projectInfos = WTApp.getGlobalApiClient().getProjectIds();
+                if (projectInfos.size() == 0) {
+                    return FormValidation.error(Messages.SUGGESTION_EMPTY_PROJECT());
+                }
+            } catch (CloudTestSDKException e) {
+
+            }
+            return FormValidation.ok();
+        }
+
+        default FormValidation doCheckGroupId(@QueryParameter String projectId) {
+            try {
+                List<GroupInfo>  groupInfos = WTApp.getGlobalApiClient().getGroupIds(projectId);
+                if (groupInfos.size() == 0) {
+                    return FormValidation.error(Messages.SUGGESTION_EMPTY_GROUP());
+                }
+            } catch (CloudTestSDKException e) {
+                // TODO
+            }
+            return FormValidation.ok();
+        }
+
 
         default ListBoxModel doFillFrameTypeItems() {
             return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE);
@@ -237,12 +274,16 @@ public class WTTestBuilder extends Builder {
             return new ListBoxModel().add("pytest").add("custom");
         }
 
+        default ListBoxModel doFillTargetOsTypeItems() {
+            return new ListBoxModel().add("Android");
+        }
+
         default FormValidation doCheckTimeout(@QueryParameter String value) {
             return CheckTimeout(value);
         }
 
         default FormValidation doCheckCaseTimeout(@QueryParameter String value) {
-            return CheckTimeout(value);
+            return CheckCaseTimeout(value);
         }
 
         default FormValidation CheckTimeout(String value) {
@@ -253,8 +294,22 @@ public class WTTestBuilder extends Builder {
                 return FormValidation.error(Messages.ERROR_INVALID_TIMEOUT_TYPE());
             }
 
-            if (timeout > DEFAULT_MAX_TIMEOUT) {
-                return FormValidation.error(Messages.ERROR_INVALID_TIMEOUT_VALUE());
+            if (timeout > DEFAULT_MAX_TIMEOUT || timeout < DEFAULT_MIN_TIMEOUT) {
+                return FormValidation.error(Messages.ERROR_INVALID_TIMEOUT_TYPE());
+            }
+            return FormValidation.ok();
+        }
+
+        default FormValidation CheckCaseTimeout(String value) {
+            int caseTimeout;
+            try {
+                caseTimeout = Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                return FormValidation.error(Messages.ERROR_INVALID_CASE_TIMEOUT_VALUE());
+            }
+
+            if (caseTimeout > DEFAULT_MAX_CASE_TIMEOUT || caseTimeout < DEFAULT_MIN_CASE_TIMEOUT) {
+                return FormValidation.error(Messages.ERROR_INVALID_TIMEOUT_TYPE());
             }
             return FormValidation.ok();
         }

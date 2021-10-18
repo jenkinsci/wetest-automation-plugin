@@ -3,29 +3,32 @@
     <f:entry field="projectId" title="${%Project}">
         <f:select/>
     </f:entry>
+    <f:entry field="targetOsType" title="${%Target OS Type}">
+        <f:select/>
+    </f:entry>
     <f:entry field="application" title="${%Application}">
         <f:textbox name="appPath" value="${instance.appPath}"
                    placeholder="Test app absolute path"/>
     </f:entry>
-    <f:entry field="testscript" title="${%TestScript}">
+    <f:entry field="testscript" title="${%Test Script}">
         <f:textbox name="scriptPath" value="${instance.scriptPath}"
                    placeholder="Test script absolute path"/>
     </f:entry>
-    <f:entry field="frameType" title="${%FrameType}">
+    <f:entry field="frameType" title="${%Framework}">
         <f:select/>
     </f:entry>
-    <f:entry field="parserType" title="${%ParserType}">
+    <f:entry field="parserType" title="${%Language}">
         <f:select/>
     </f:entry>
     <f:entry field="groupId" title="${%Device group}">
         <f:select/>
     </f:entry>
     <f:advanced>
-        <f:entry field="timeout" title="${%Test timeout}">
-            <f:textbox name="timeout" value="${instance.timeout}"/>
+        <f:entry field="caseTimeout" title="${%Device running timeout}">
+            <f:textbox name="caseTimeout" default="10" value="${instance.caseTimeout}"/>
         </f:entry>
-        <f:entry field="caseTimeout" title="${%Case timeout}">
-            <f:textbox name="caseTimeout" value="${instance.caseTimeout}"/>
+        <f:entry field="timeout" title="${%Test running timeout}">
+            <f:textbox name="timeout" default="30" value="${instance.getTimeout()}"/>
         </f:entry>
     </f:advanced>
 </j:jelly>

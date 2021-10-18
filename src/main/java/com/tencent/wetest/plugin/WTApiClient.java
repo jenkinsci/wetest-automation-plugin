@@ -26,7 +26,7 @@ public class WTApiClient {
 
     public static final String VERSION = "V1.0.0-20211009";
 
-    public static final int DEFAULT_TIMEOUT = 600;
+    public static final int DEFAULT_TIMEOUT = 30;
     public static final String DEFAULT_CLOUD_TOOL = "cloudtest";
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
     public static final String DEFAULT_FRAME_TYPE = "appium";
@@ -34,7 +34,7 @@ public class WTApiClient {
     private static final String CHOOSE_TYPE_DEVICE_IDS = "deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS = "modelids";
 
-    public static final int DEFAULT_CASE_TIMEOUT = 600;
+    public static final int DEFAULT_CASE_TIMEOUT = 10;
 
     public static final String DEFAULT_ORDER_ACCOUNT_TYPE = "personal";
 
@@ -75,11 +75,6 @@ public class WTApiClient {
         profile = new ClientProfile(ClientProfile.SIGN_SHA256, httpProfile);
         credential = new Credential(secretId, secretKey);
         ctClient = new CTClient(credential, profile);
-
-        if (modelList == null) {
-            // init model list
-            getGroupIds("groupId");
-        }
     }
 
     public String getSecretId() {
@@ -111,8 +106,8 @@ public class WTApiClient {
         automationTest.setParserType(parserType);
         int testTimeout = Integer.parseInt(timeOut);
         int caseTestTimeout = Integer.parseInt(caseTimeOut);
-        automationTest.setMaxTestRunTime(testTimeout);
-        automationTest.setMaxCaseRuntime(caseTestTimeout);
+        automationTest.setMaxTestRunTime(testTimeout * 60);
+        automationTest.setMaxCaseRuntime(caseTestTimeout * 60);
         automationTest.setOrderAccountType(DEFAULT_ORDER_ACCOUNT_TYPE);
 
         if (!StringUtils.isBlank(projectId)) {

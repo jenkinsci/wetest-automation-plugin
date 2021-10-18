@@ -25,7 +25,7 @@ public class WTTestBuilderTest {
                 String.valueOf(WTApiClient.DEFAULT_TIMEOUT),
                 WTApiClient.DEFAULT_FRAME_TYPE,
                 "custom",
-                String.valueOf(WTApiClient.DEFAULT_TIMEOUT));
+                String.valueOf(WTApiClient.DEFAULT_TIMEOUT), "Android");
 
         project.getBuildersList().add(builder);
 

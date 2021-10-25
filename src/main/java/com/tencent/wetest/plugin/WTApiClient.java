@@ -115,16 +115,16 @@ public class WTApiClient {
         return ctClient.test.startAutomationTest(automationTest);
     }
 
-    void waitTestEnd(long testId) throws CloudTestSDKException {
+    int waitTestEnd(long testId) throws CloudTestSDKException {
         while (true) {
             TestStatus testStatus = ctClient.test.getTestStatus(testId);
             try {
                 Thread.sleep(10* 1000);
             } catch (InterruptedException e) {
-                break;
+                return 0;
             }
             if (testStatus.finished) {
-                break;
+                return testStatus.statusCode;
             }
         }
     }

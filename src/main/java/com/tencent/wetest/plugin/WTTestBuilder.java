@@ -166,7 +166,14 @@ public class WTTestBuilder extends Builder {
             }
             listener.getLogger().println(Messages.WAIT_TEST_END());
             // wait test end
-            WTApp.getGlobalApiClient().waitTestEnd(info.testId);
+            int testStatus = WTApp.getGlobalApiClient().waitTestEnd(info.testId);
+            if (testStatus == 1) {
+                return true;
+            } else {
+                listener.getLogger().println(Messages.TEST_FAILED());
+                return false;
+            }
+
             //-----------Step: after test running ------------------------------
         } catch (CloudTestSDKException e) {
             listener.getLogger().println(Messages.ERR_SDK_REQUEST(e.getMessage()));
@@ -178,8 +185,6 @@ public class WTTestBuilder extends Builder {
             listener.getLogger().println(Messages.ERR_SDK_UNKNOWN(e.toString()));
             return false;
         }
-
-        return true;
     }
 
     private void printTestConfig(TaskListener listener, int appId, int scriptId) {

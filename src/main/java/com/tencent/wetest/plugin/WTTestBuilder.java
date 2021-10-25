@@ -164,10 +164,12 @@ public class WTTestBuilder extends Builder {
                 listener.getLogger().println(Messages.FAILED_RUN_TEST());
                 return false;
             }
-
+            listener.getLogger().println(Messages.WAIT_TEST_END());
+            // wait test end
+            WTApp.getGlobalApiClient().waitTestEnd(info.testId);
             //-----------Step: after test running ------------------------------
         } catch (CloudTestSDKException e) {
-            listener.getLogger().println(Messages.ERR_SDK_REQUEST(e.toString()));
+            listener.getLogger().println(Messages.ERR_SDK_REQUEST(e.getMessage()));
             return false;
         } catch (IOException e) {
             listener.getLogger().println(Messages.ERR_SDK_CONNECT(e.toString()));

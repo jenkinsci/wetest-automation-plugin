@@ -7,9 +7,7 @@ import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.common.profile.ClientProfile;
 import com.cloudtestapi.common.profile.HttpProfile;
 import com.cloudtestapi.device.models.ModelList;
-import com.cloudtestapi.test.models.AutomationTest;
-import com.cloudtestapi.test.models.CompatibilityTest;
-import com.cloudtestapi.test.models.TestInfo;
+import com.cloudtestapi.test.models.*;
 import com.cloudtestapi.upload.models.App;
 import com.cloudtestapi.upload.models.Script;
 import com.tencent.wetest.plugin.model.GroupInfo;
@@ -115,6 +113,20 @@ public class WTApiClient {
         }
 
         return ctClient.test.startAutomationTest(automationTest);
+    }
+
+    void waitTestEnd(long testId) throws CloudTestSDKException {
+        while (true) {
+            TestStatus testStatus = ctClient.test.getTestStatus(testId);
+            try {
+                Thread.sleep(10* 1000);
+            } catch (InterruptedException e) {
+                break;
+            }
+            if (testStatus.finished) {
+                break;
+            }
+        }
     }
 
     int uploadApp(String appPath) throws CloudTestSDKException {

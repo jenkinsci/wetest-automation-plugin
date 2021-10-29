@@ -17,17 +17,14 @@
     <f:entry field="frameType" title="${%Framework}">
         <f:select/>
     </f:entry>
-    <f:entry field="parserType" title="${%Language}">
-        <f:select/>
-    </f:entry>
     <f:entry field="groupId" title="${%Device group}">
         <f:select/>
     </f:entry>
     <f:advanced>
-        <f:entry field="caseTimeout" title="${%Device running timeout}">
+        <f:entry field="caseTimeout" title="${%Device Run Time-out Period}">
             <f:textbox name="caseTimeout" default="10" value="${instance.caseTimeout}"/>
         </f:entry>
-        <f:entry field="timeout" title="${%Test running timeout}">
+        <f:entry field="timeout" title="${%Test Run Time-out Period}">
             <f:textbox name="timeout" default="30" value="${instance.getTimeout()}"/>
         </f:entry>
     </f:advanced>

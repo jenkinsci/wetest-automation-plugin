@@ -92,16 +92,14 @@ public class WTApiClient {
     }
 
     TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeOut,
-                       String frameType, String parserType, String caseTimeOut) throws CloudTestSDKException {
+                       String frameType, String caseTimeOut) throws CloudTestSDKException {
         AutomationTest automationTest = new AutomationTest();
         automationTest.setAppId(appId);
         automationTest.setScriptId(scriptId);
         automationTest.setDevices(getDeviceIdsByGroup(groupId));
         // choose type set by getDeviceIdsByGroup()
         automationTest.setDeviceChooseType(chooseType);
-
         automationTest.setFrameType(frameType);
-        automationTest.setParserType(parserType);
         int testTimeout = Integer.parseInt(timeOut);
         int caseTestTimeout = Integer.parseInt(caseTimeOut);
         automationTest.setMaxTestRunTime(testTimeout * 60);
@@ -179,6 +177,7 @@ public class WTApiClient {
     }
 
     private int[] getDeviceIdsByGroup(String groupName) {
+//        System.out.println("model list " + modelList);
         if (modelList == null) {
             // init modelList by call getGroupIds(String groupId).
             return null;

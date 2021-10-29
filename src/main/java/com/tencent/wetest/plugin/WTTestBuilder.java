@@ -33,13 +33,12 @@ public class WTTestBuilder extends Builder {
     private String groupId;
     private String timeout;
     private String frameType;
-    private String parserType;
     private String caseTimeout;
     private String targetOsType;
 
     @DataBoundConstructor
     public WTTestBuilder(String projectId, String appPath, String scriptPath, String groupId,
-                         String timeout,  String frameType, String parserType, String caseTimeout,
+                         String timeout,  String frameType, String caseTimeout,
                          String targetOsType) {
         this.projectId = projectId;
         this.appPath = appPath;
@@ -47,7 +46,6 @@ public class WTTestBuilder extends Builder {
         this.groupId = groupId;
         this.timeout = timeout;
         this.frameType = frameType;
-        this.parserType = parserType;
         this.caseTimeout = caseTimeout;
         this.targetOsType = targetOsType;
     }
@@ -92,14 +90,6 @@ public class WTTestBuilder extends Builder {
 
     public void setFrameType(String frameType) {
         this.frameType = frameType;
-    }
-
-    public String getParserType() {
-        return parserType;
-    }
-
-    public void setParserType(String parserType) {
-        this.parserType = parserType;
     }
 
     public String getTargetOsType() {
@@ -156,7 +146,7 @@ public class WTTestBuilder extends Builder {
 
             //-----------Step: start test ------------------------------
             TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId,
-                    groupId, timeout, frameType, parserType, caseTimeout);
+                    groupId, timeout, frameType, caseTimeout);
             if (info != null) {
                 listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId, info.reportUrl));
                 listener.getLogger().println(Messages.SUCCESS_RUN_TEST());
@@ -197,7 +187,6 @@ public class WTTestBuilder extends Builder {
         listener.getLogger().println(Messages.CONFIG_INFO_SCRIPT_ID(scriptId));
         listener.getLogger().println(Messages.CONFIG_INFO_GROUP_Id(groupId));
         listener.getLogger().println(Messages.CONFIG_INFO_FRAME_TYPE(frameType));
-        listener.getLogger().println(Messages.CONFIG_INFO_PARSE_TYPE(parserType));
         listener.getLogger().println(Messages.CONFIG_INFO_TIMEOUT(timeout));
         listener.getLogger().println(Messages.CONFIG_INFO_CASE_TIMEOUT(caseTimeout));
     }
@@ -275,10 +264,6 @@ public class WTTestBuilder extends Builder {
 
         default ListBoxModel doFillFrameTypeItems() {
             return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE);
-        }
-
-        default ListBoxModel doFillParserTypeItems() {
-            return new ListBoxModel().add("pytest").add("custom");
         }
 
         default ListBoxModel doFillTargetOsTypeItems() {

@@ -24,7 +24,6 @@ public class WTTestBuilderTest {
                 "jenkins-test",
                 String.valueOf(WTApiClient.DEFAULT_TIMEOUT),
                 WTApiClient.DEFAULT_FRAME_TYPE,
-                "custom",
                 String.valueOf(WTApiClient.DEFAULT_TIMEOUT), "Android");
 
         project.getBuildersList().add(builder);

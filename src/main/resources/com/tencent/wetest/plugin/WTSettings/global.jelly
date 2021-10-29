@@ -17,7 +17,7 @@
                 <f:textbox name="hostUrl" value="${descriptor.getHostUrl()}"/>
             </f:entry>
             <f:advanced>
-                <f:entry field="toolPath" title="${%ToolPath}">
+                <f:entry field="toolPath" title="${%Product}">
                     <f:textbox name="toolPath" value="${instance.toolPath}"/>
                 </f:entry>
               <f:entry field="protocol" title="${%Protocol}">

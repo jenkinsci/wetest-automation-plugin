@@ -7,7 +7,9 @@ import com.cloudtestapi.common.exception.CloudTestSDKException;
 import com.cloudtestapi.common.profile.ClientProfile;
 import com.cloudtestapi.common.profile.HttpProfile;
 import com.cloudtestapi.device.models.ModelList;
-import com.cloudtestapi.test.models.*;
+import com.cloudtestapi.test.models.AutomationTest;
+import com.cloudtestapi.test.models.TestInfo;
+import com.cloudtestapi.test.models.TestStatus;
 import com.cloudtestapi.upload.models.App;
 import com.cloudtestapi.upload.models.Script;
 import com.tencent.wetest.plugin.model.GroupInfo;
@@ -117,7 +119,7 @@ public class WTApiClient {
         while (true) {
             TestStatus testStatus = ctClient.test.getTestStatus(testId);
             try {
-                Thread.sleep(10* 1000);
+                Thread.sleep(10 * 1000);
             } catch (InterruptedException e) {
                 return 0;
             }
@@ -168,7 +170,7 @@ public class WTApiClient {
         if (modelList != null) {
             for (ModelList modelList : modelList) {
                 groups.add(new GroupInfo(modelList.name, modelList.name,
-                        modelList.cloudName, GetDeviceNums(modelList)));
+                        modelList.cloudName, getDeviceNums(modelList)));
             }
         } else {
             logger.log(Level.SEVERE, "Get group ids failed: result is null");
@@ -206,8 +208,8 @@ public class WTApiClient {
         return null;
     }
 
-    private int GetDeviceNums(ModelList list) {
-        return list.filterType == MODEL_LIST_FILTER_TYPE_MODEL ?
-                list.modelIds.length : list.deviceIds.length;
+    private int getDeviceNums(ModelList list) {
+        return list.filterType == MODEL_LIST_FILTER_TYPE_MODEL
+                ? list.modelIds.length : list.deviceIds.length;
     }
 }

@@ -280,14 +280,14 @@ public class WTTestBuilder extends Builder {
         }
 
         default FormValidation doCheckTimeout(@QueryParameter String value) {
-            return CheckTimeout(value);
+            return checkTimeout(value);
         }
 
         default FormValidation doCheckCaseTimeout(@QueryParameter String value) {
-            return CheckCaseTimeout(value);
+            return checkCaseTimeout(value);
         }
 
-        default FormValidation CheckTimeout(String value) {
+        default FormValidation checkTimeout(String value) {
             int timeout;
             try {
                 timeout = Integer.parseInt(value);
@@ -301,7 +301,7 @@ public class WTTestBuilder extends Builder {
             return FormValidation.ok();
         }
 
-        default FormValidation CheckCaseTimeout(String value) {
+        default FormValidation checkCaseTimeout(String value) {
             int caseTimeout;
             try {
                 caseTimeout = Integer.parseInt(value);

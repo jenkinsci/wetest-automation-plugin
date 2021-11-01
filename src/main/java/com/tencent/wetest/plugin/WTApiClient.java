@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WTApiClient {
-    Logger LOGGER = Logger.getLogger(WTApp.class.getSimpleName());
+    private Logger logger = Logger.getLogger(WTApp.class.getSimpleName());
 
     public static final String VERSION = "V1.0.0-20211009";
 
@@ -61,7 +61,7 @@ public class WTApiClient {
         try {
             initReqConfig();
         } catch (CloudTestSDKException e) {
-            LOGGER.log(Level.SEVERE, "Start Test Failed : " + e);
+            logger.log(Level.SEVERE, "Start Test Failed : " + e);
         }
     }
 
@@ -157,7 +157,7 @@ public class WTApiClient {
                 projects.add(new ProjectInfo(project.projectName, project.projectId));
             }
         } else {
-            LOGGER.log(Level.SEVERE, "Get project ids failed: result is null");
+            logger.log(Level.SEVERE, "Get project ids failed: result is null");
         }
         return projects;
     }
@@ -171,7 +171,7 @@ public class WTApiClient {
                         modelList.cloudName, GetDeviceNums(modelList)));
             }
         } else {
-            LOGGER.log(Level.SEVERE, "Get group ids failed: result is null");
+            logger.log(Level.SEVERE, "Get group ids failed: result is null");
         }
         return groups;
     }
@@ -198,7 +198,7 @@ public class WTApiClient {
                 }
                 default:
                     //not support filter type
-                    LOGGER.log(Level.SEVERE, "Get devices by group failed: unknown filter type "
+                    logger.log(Level.SEVERE, "Get devices by group failed: unknown filter type "
                             + modelList.filterType);
                     return null;
             }

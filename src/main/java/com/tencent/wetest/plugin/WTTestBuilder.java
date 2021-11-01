@@ -8,7 +8,11 @@ import com.tencent.wetest.plugin.util.FileUtils;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
@@ -20,8 +24,11 @@ import org.kohsuke.stapler.QueryParameter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WTTestBuilder extends Builder {
+    static Logger logger = Logger.getLogger(WTApp.class.getSimpleName());
 
     public static final int DEFAULT_MAX_TIMEOUT = 90;
     public static final int DEFAULT_MIN_TIMEOUT = 15;
@@ -106,7 +113,7 @@ public class WTTestBuilder extends Builder {
         return runTest(build, build.getWorkspace(), launcher, listener);
     }
 
-    public boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher, TaskListener listener)
+    private boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher, TaskListener listener)
             throws InterruptedException, IOException {
         listener.getLogger().println(Messages.STARTED_RUN_TEST());
         listener.getLogger().println(Messages.STARTED_UPLOAD_TEST_FILE());
@@ -217,6 +224,7 @@ public class WTTestBuilder extends Builder {
                     projectIds.add(info.getProjectName(), info.getProjectId());
                 }
             } catch (CloudTestSDKException e) {
+                logger.log(Level.SEVERE, "doFillProjectIdItems error : " + e);
             }
             return projectIds;
         }
@@ -232,6 +240,7 @@ public class WTTestBuilder extends Builder {
                             info.getDeviceNum()), info.getGroupId());
                 }
             } catch (CloudTestSDKException e) {
+                logger.log(Level.SEVERE, "doFillGroupIdItems error : " + e);
                 groupIds.add(EMPTY_OPTION);
             }
             return groupIds;
@@ -244,7 +253,7 @@ public class WTTestBuilder extends Builder {
                     return FormValidation.error(Messages.SUGGESTION_EMPTY_PROJECT());
                 }
             } catch (CloudTestSDKException e) {
-
+                logger.log(Level.SEVERE, "doCheckProjectId error : " + e);
             }
             return FormValidation.ok();
         }
@@ -256,7 +265,7 @@ public class WTTestBuilder extends Builder {
                     return FormValidation.error(Messages.SUGGESTION_EMPTY_GROUP());
                 }
             } catch (CloudTestSDKException e) {
-                // TODO
+                logger.log(Level.SEVERE, "doCheckGroupId error : " + e);
             }
             return FormValidation.ok();
         }

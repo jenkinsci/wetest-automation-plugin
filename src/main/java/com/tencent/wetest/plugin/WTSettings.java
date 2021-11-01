@@ -95,12 +95,15 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setSecretId(String secretId) {
-            if (!StringUtils.isBlank(secretId)) this.secretId = secretId.trim();
+            if (!StringUtils.isBlank(secretId)) {
+                this.secretId = secretId.trim();
+            }
         }
 
         public void setSecretKey(String secretKey) {
-            if (!StringUtils.isBlank(secretKey))
+            if (!StringUtils.isBlank(secretKey)) {
                 this.secretKey = Secret.fromString(secretKey).getEncryptedValue().trim();
+            }
         }
 
         public String getSecretKey() {
@@ -108,7 +111,9 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setHostUrl(String hostUrl) {
-            if (!StringUtils.isBlank(hostUrl)) this.hostUrl = hostUrl.trim();
+            if (!StringUtils.isBlank(hostUrl)) {
+                this.hostUrl = hostUrl.trim();
+            }
         }
 
         public String getHostUrl() {
@@ -119,7 +124,9 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setToolPath(String toolPath) {
-            if (!StringUtils.isBlank(toolPath)) this.toolPath = toolPath.trim();
+            if (!StringUtils.isBlank(toolPath)) {
+                this.toolPath = toolPath.trim();
+            }
         }
 
         public String getToolPath() {
@@ -127,7 +134,9 @@ public class WTSettings implements Describable<WTSettings> {
         }
 
         public void setProtocol(String protocol) {
-            if (!StringUtils.isBlank(protocol)) this.protocol = protocol.trim();
+            if (!StringUtils.isBlank(protocol)) {
+                this.protocol = protocol.trim();
+            }
         }
 
         public String getProtocol() {
@@ -143,13 +152,11 @@ public class WTSettings implements Describable<WTSettings> {
                 return false;
             }
             DescriptorImpl that = (DescriptorImpl) o;
-            return Objects.equals(secretId, that.secretId) &&
-                    Objects.equals(secretKey, that.secretKey) &&
-                    Objects.equals(hostUrl, that.hostUrl) &&
-                    Objects.equals(toolPath, that.toolPath) &&
-                    Objects.equals(protocol, that.protocol)
-
-                    ;
+            return Objects.equals(secretId, that.secretId)
+                    && Objects.equals(secretKey, that.secretKey)
+                    && Objects.equals(hostUrl, that.hostUrl)
+                    && Objects.equals(toolPath, that.toolPath)
+                    && Objects.equals(protocol, that.protocol);
         }
 
         @Override

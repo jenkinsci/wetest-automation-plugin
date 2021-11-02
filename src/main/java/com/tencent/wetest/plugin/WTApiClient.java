@@ -29,7 +29,7 @@ public class WTApiClient {
     public static final int DEFAULT_TIMEOUT = 30;
     public static final String DEFAULT_CLOUD_TOOL = "cloudtest";
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
-    public static final String DEFAULT_FRAME_TYPE = "appium";
+    public static final String DEFAULT_FRAME_TYPE = "appium1.19.1";
 
     private static final String CHOOSE_TYPE_DEVICE_IDS = "deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS = "modelids";
@@ -93,10 +93,10 @@ public class WTApiClient {
         return toolPath;
     }
 
-    TestInfo startTest(String projectId, int appId, int scriptId, String groupId, String timeOut,
+    TestInfo startTest(String projectId, String hashAppId, int scriptId, String groupId, String timeOut,
                        String frameType, String caseTimeOut) throws CloudTestSDKException {
         AutomationTest automationTest = new AutomationTest();
-        automationTest.setAppId(appId);
+        automationTest.setAppHashId(hashAppId);
         automationTest.setScriptId(scriptId);
         automationTest.setDevices(getDeviceIdsByGroup(groupId));
         // choose type set by getDeviceIdsByGroup()
@@ -129,15 +129,14 @@ public class WTApiClient {
         }
     }
 
-    int uploadApp(String appPath) throws CloudTestSDKException {
-        int appid;
+    String uploadApp(String appPath, String projectId) throws CloudTestSDKException {
+        String appHashId;
         try {
-            appid = Integer.parseInt(appPath);
+            appHashId = ctClient.upload.multiPartUploadApkToWT(appPath, projectId).appHashId;
         } catch (NumberFormatException e) {
-            App appResp = ctClient.upload.multiPartUploadApk(appPath);
-            appid = appResp.appId;
+            return "";
         }
-        return appid;
+        return appHashId;
     }
 
     int uploadScript(String script) throws CloudTestSDKException {
@@ -179,7 +178,6 @@ public class WTApiClient {
     }
 
     private int[] getDeviceIdsByGroup(String groupName) {
-//        System.out.println("model list " + modelList);
         if (modelList == null) {
             // init modelList by call getGroupIds(String groupId).
             return null;

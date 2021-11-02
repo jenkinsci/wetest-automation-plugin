@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 public class WTTestBuilder extends Builder {
     static Logger logger = Logger.getLogger(WTApp.class.getSimpleName());
 
+    private static final String REPORT_URL = "https://console.wetest.net/app/testlab/automation/report/%d";
     public static final int DEFAULT_MAX_TIMEOUT = 90;
     public static final int DEFAULT_MIN_TIMEOUT = 15;
     public static final int DEFAULT_MAX_CASE_TIMEOUT = 30;
@@ -127,8 +128,8 @@ public class WTTestBuilder extends Builder {
                 return false;
             }
             listener.getLogger().println(Messages.READY_UPLOAD_APPLICATION_FILE(appAbsPath));
-            int appId = client.uploadApp(appAbsPath);
-            if (appId <= 0) {
+            String appHashId = client.uploadApp(appAbsPath, projectId);
+            if (appHashId.isEmpty()) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_APPLICATION_FILE(appAbsPath));
                 return false;
             }
@@ -149,13 +150,14 @@ public class WTTestBuilder extends Builder {
             listener.getLogger().println(Messages.READY_RUN_TEST());
 
             //-----------Step: show all test configs ------------------------------
-            printTestConfig(listener, appId, scriptId);
+            printTestConfig(listener, appHashId, scriptId);
 
             //-----------Step: start test ------------------------------
-            TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appId, scriptId,
+            TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appHashId, scriptId,
                     groupId, timeout, frameType, caseTimeout);
             if (info != null) {
-                listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId, info.reportUrl));
+                listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId,
+                        String.format(REPORT_URL, info.testId)));
                 listener.getLogger().println(Messages.SUCCESS_RUN_TEST());
             } else {
                 listener.getLogger().println(Messages.FAILED_RUN_TEST());
@@ -184,13 +186,13 @@ public class WTTestBuilder extends Builder {
         }
     }
 
-    private void printTestConfig(TaskListener listener, int appId, int scriptId) {
+    private void printTestConfig(TaskListener listener, String hashAppId, int scriptId) {
         listener.getLogger().println(Messages.CONFIG_INFO_TIPS());
         listener.getLogger().println(Messages.CONFIG_INFO_HOST_URL(WTApp.getGlobalApiClient().getHostUrl()));
         listener.getLogger().println(Messages.CONFIG_INFO_USER_ID(WTApp.getGlobalApiClient().getSecretId()));
         listener.getLogger().println(Messages.CONFIG_INFO_PLUGIN_VERSION(WTApiClient.VERSION));
         listener.getLogger().println(Messages.CONFIG_INFO_PROJECT_ID(projectId));
-        listener.getLogger().println(Messages.CONFIG_INFO_APP_ID(appId));
+        listener.getLogger().println(Messages.CONFIG_INFO_APP_ID(hashAppId));
         listener.getLogger().println(Messages.CONFIG_INFO_SCRIPT_ID(scriptId));
         listener.getLogger().println(Messages.CONFIG_INFO_GROUP_Id(groupId));
         listener.getLogger().println(Messages.CONFIG_INFO_FRAME_TYPE(frameType));

@@ -63,7 +63,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.cloudtestapi</groupId>
+            <groupId>io.github.wetestquality</groupId>
             <artifactId>ctapijava</artifactId>
             <version>${wetest.api.version}</version>
         </dependency>

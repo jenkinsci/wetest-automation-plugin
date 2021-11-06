@@ -7,8 +7,8 @@
         <version>3.50</version>
         <relativePath />
     </parent>
-    <groupId>wetestquality</groupId>
-    <artifactId>wetestplugin</artifactId>
+    <groupId>io.jenkins.plugins</groupId>
+    <artifactId>wetestquality-cloud</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>WeTest Automated Testing Plugin</name>
@@ -55,6 +55,14 @@
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
     </scm>
+
+    <developers>
+        <developer>
+            <id>wetest</id>
+            <name>wetest</name>
+            <email>WeTest@wetest.com</email>
+        </developer>
+    </developers>
 
     <repositories>
         <repository>

@@ -1,5 +1,3 @@
-target
-work
 .idea/*
 !.idea/codeStyleSettings.xml
 .externalToolBuilders
@@ -8,10 +6,12 @@ work
 *.sw*
 *.iml
 .settings
+.DS_Store
+
 nbactions.xml
+
 bin/*
 !bin/*.hpi
 
-.com.apple.timemachine.supported
-
-.DS_Store
+target
+work

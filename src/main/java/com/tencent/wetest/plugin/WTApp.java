@@ -20,7 +20,7 @@ public class WTApp {
 
     static void initGlobalSettings(WTSettings.DescriptorImpl settings) {
         getInstance().wtApiClient = new WTApiClient(settings.getSecretId(),
-                settings.getSecretKey(),
+                settings.getEncryptedSecretKey(),
                 settings.getHostUrl(),
                 settings.getToolPath(),
                 settings.getProtocol()

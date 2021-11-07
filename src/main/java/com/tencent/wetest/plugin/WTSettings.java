@@ -26,7 +26,7 @@ public class WTSettings implements Describable<WTSettings> {
 
         String secretId;
 
-        String encryptedSecretKey;
+        Secret secretKey;
 
         String hostUrl;
 
@@ -39,11 +39,11 @@ public class WTSettings implements Describable<WTSettings> {
             load();
         }
 
-        DescriptorImpl(String secretId, String secretKey, String hostUrl, String toolPath, String protocol) {
+        DescriptorImpl(String secretId, Secret secretKey, String hostUrl, String toolPath, String protocol) {
             this();
             setHostUrl(hostUrl);
             setSecretId(secretId);
-            setEncryptedSecretKey(secretKey);
+            setSecretKey(secretKey);
             setToolPath(toolPath);
             setProtocol(protocol);
         }
@@ -66,7 +66,7 @@ public class WTSettings implements Describable<WTSettings> {
         public synchronized void save() {
             setHostUrl(hostUrl);
             setSecretId(secretId);
-            setEncryptedSecretKey(encryptedSecretKey);
+            setSecretKey(secretKey);
             setToolPath(toolPath);
             setProtocol(protocol);
             WTApp.initGlobalSettings(this);
@@ -78,11 +78,11 @@ public class WTSettings implements Describable<WTSettings> {
             super.load();
         }
 
-        public FormValidation doSaveData(String secretId, String secretKey, String hostUrl, String toolPath,
+        public FormValidation doSaveData(String secretId, Secret secretKey, String hostUrl, String toolPath,
                                          String protocol) {
             setHostUrl(hostUrl);
             setSecretId(secretId);
-            setEncryptedSecretKey(secretKey);
+            setSecretKey(secretKey);
             setToolPath(toolPath);
             setProtocol(protocol);
             save();
@@ -100,14 +100,12 @@ public class WTSettings implements Describable<WTSettings> {
             }
         }
 
-        public void setEncryptedSecretKey(String encryptedSecretKey) {
-            if (!StringUtils.isBlank(encryptedSecretKey)) {
-                this.encryptedSecretKey = Secret.fromString(encryptedSecretKey).getEncryptedValue().trim();
-            }
+        public void setSecretKey(Secret secretKey) {
+            this.secretKey = secretKey;
         }
 
-        public String getEncryptedSecretKey() {
-            return Secret.fromString(encryptedSecretKey).getPlainText();
+        public Secret getSecretKey() {
+            return secretKey;
         }
 
         public void setHostUrl(String hostUrl) {
@@ -153,7 +151,7 @@ public class WTSettings implements Describable<WTSettings> {
             }
             DescriptorImpl that = (DescriptorImpl) o;
             return Objects.equals(secretId, that.secretId)
-                    && Objects.equals(encryptedSecretKey, that.encryptedSecretKey)
+                    && Objects.equals(secretKey, that.secretKey)
                     && Objects.equals(hostUrl, that.hostUrl)
                     && Objects.equals(toolPath, that.toolPath)
                     && Objects.equals(protocol, that.protocol);
@@ -161,7 +159,7 @@ public class WTSettings implements Describable<WTSettings> {
 
         @Override
         public int hashCode() {
-            return Objects.hash(secretId, encryptedSecretKey, hostUrl);
+            return Objects.hash(secretId, secretKey, hostUrl);
         }
     }
 }

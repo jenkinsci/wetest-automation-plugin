@@ -10,8 +10,8 @@
             <f:entry title="${%Secret id}">
                 <f:textbox name="secretId" value="${descriptor.getSecretId()}"/>
             </f:entry>
-            <f:entry title="${%Secret Key}">
-                <f:password name="encryptedSecretKey" value="${descriptor.getEncryptedSecretKey()}"/>
+            <f:entry title="${%Secret Key}" field="secretKey">
+                <f:password />
             </f:entry>
             <f:entry field="host" title="${%WeTest URL}">
                 <f:textbox name="hostUrl" value="${descriptor.getHostUrl()}"/>

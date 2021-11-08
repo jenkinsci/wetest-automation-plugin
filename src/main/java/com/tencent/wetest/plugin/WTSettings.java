@@ -22,7 +22,7 @@ public class WTSettings implements Describable<WTSettings> {
 
     @Extension
     public static final class DescriptorImpl extends Descriptor<WTSettings> {
-        private static final String DEFAULT_HOST_URL = "pre.api.paas.cloudtest.woa.com";
+        private static final String DEFAULT_HOST_URL = "api.paas.wetest.net";
 
         String secretId;
 
@@ -76,18 +76,6 @@ public class WTSettings implements Describable<WTSettings> {
         @Override
         public synchronized void load() {
             super.load();
-        }
-
-        public FormValidation doSaveData(String secretId, Secret secretKey, String hostUrl, String toolPath,
-                                         String protocol) {
-            setHostUrl(hostUrl);
-            setSecretId(secretId);
-            setSecretKey(secretKey);
-            setToolPath(toolPath);
-            setProtocol(protocol);
-            save();
-            WTApp.initGlobalSettings(this);
-            return FormValidation.ok();
         }
 
         public String getSecretId() {

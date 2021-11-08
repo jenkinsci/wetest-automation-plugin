@@ -4,7 +4,7 @@
 
 WeTest is a full-scale testing platform for each stage of your development and operations lifecycle.By using WeTest platform, your team members are able to ensure complete digital confidence in your application's behavior and performance on any mobile device, regardless of complicated user environments(OS,Device...etc). 
 
-For more details, please visit  [WeTest Official Website](htttp://www.wetest.net)
+For more details, please visit  [WeTest Official Website](https://www.wetest.net/)
 
 ### 2. About WeTest Automated Testing
 

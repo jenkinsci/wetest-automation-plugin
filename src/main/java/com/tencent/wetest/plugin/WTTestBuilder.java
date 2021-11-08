@@ -13,8 +13,10 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import java.io.IOException;
@@ -215,8 +217,12 @@ public class WTTestBuilder extends Builder {
     public interface WTStepDescriptorUtil {
         ListBoxModel.Option EMPTY_OPTION = new ListBoxModel.Option(StringUtils.EMPTY, StringUtils.EMPTY);
 
-        default ListBoxModel doFillProjectIdItems() {
+        default ListBoxModel doFillProjectIdItems(@AncestorInPath Item item) {
             ListBoxModel projectIds = new ListBoxModel();
+            if ((item == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER))
+                    || (item != null && !item.hasPermission(Item.CONFIGURE))) {
+                return projectIds;
+            }
             try {
                 for (ProjectInfo info : WTApp.getGlobalApiClient().getProjectIds()) {
                     projectIds.add(info.getProjectName(), info.getProjectId());
@@ -227,8 +233,12 @@ public class WTTestBuilder extends Builder {
             return projectIds;
         }
 
-        default ListBoxModel doFillGroupIdItems(@QueryParameter String projectId) {
+        default ListBoxModel doFillGroupIdItems(@AncestorInPath Item item, @QueryParameter String projectId) {
             ListBoxModel groupIds = new ListBoxModel();
+            if ((item == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER))
+                    || (item != null && !item.hasPermission(Item.CONFIGURE))) {
+                    return groupIds;
+            }
             if (projectId.isEmpty()) {
                 return groupIds;
             }
@@ -244,7 +254,11 @@ public class WTTestBuilder extends Builder {
             return groupIds;
         }
 
-        default FormValidation doCheckProjectId() {
+        default FormValidation doCheckProjectId(@AncestorInPath Item item) {
+            if ((item == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER))
+                    || (item != null && !item.hasPermission(Item.CONFIGURE))) {
+                return FormValidation.ok();
+            }
             try {
                 List<ProjectInfo> projectInfos = WTApp.getGlobalApiClient().getProjectIds();
                 if (projectInfos.size() == 0) {
@@ -256,7 +270,11 @@ public class WTTestBuilder extends Builder {
             return FormValidation.ok();
         }
 
-        default FormValidation doCheckGroupId(@QueryParameter String projectId) {
+        default FormValidation doCheckGroupId(@AncestorInPath Item item, @QueryParameter String projectId) {
+            if ((item == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER))
+                    || (item != null && !item.hasPermission(Item.CONFIGURE))) {
+                return FormValidation.ok();
+            }
             try {
                 List<GroupInfo>  groupInfos = WTApp.getGlobalApiClient().getGroupIds(projectId);
                 if (groupInfos.size() == 0) {

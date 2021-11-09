@@ -41,7 +41,6 @@ public class WTApiClient {
     public static final int MODEL_LIST_FILTER_TYPE_MODEL = 1;
     public static final int MODEL_LIST_FILTER_TYPE_DEVICE = 2;
     private String secretId;
-    private String secretKey;
     private String hostUrl;
     private String toolPath;
     private String protocol;
@@ -56,18 +55,17 @@ public class WTApiClient {
 
     public WTApiClient(String secretId, String secretKey, String hostUrl, String toolPath, String protocol) {
         this.secretId = secretId;
-        this.secretKey = secretKey;
         this.hostUrl = hostUrl;
         this.toolPath = StringUtils.isBlank(toolPath) ? DEFAULT_CLOUD_TOOL : toolPath;
         this.protocol = StringUtils.isBlank(protocol) ? DEFAULT_PROTOCOL_TYPE : protocol;
         try {
-            initReqConfig();
+            initReqConfig(secretKey);
         } catch (CloudTestSDKException e) {
             logger.log(Level.SEVERE, "Start Test Failed : " + e);
         }
     }
 
-    private void initReqConfig() throws CloudTestSDKException {
+    private void initReqConfig(String secretKey) throws CloudTestSDKException {
         HttpProfile httpProfile = new HttpProfile();
         httpProfile.setRootDomain(hostUrl);
         httpProfile.setToolPath(toolPath);
@@ -79,10 +77,6 @@ public class WTApiClient {
 
     public String getSecretId() {
         return this.secretId;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
     }
 
     public String getHostUrl() {

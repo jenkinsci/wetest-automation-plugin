@@ -120,7 +120,7 @@ public class WTTestBuilder extends Builder {
 
         try {
             //-----------Step: upload app file ------------------------------
-            String appAbsPath = FileUtils.getAbsPath(workPath, appPath);
+            String appAbsPath = FileUtils.getAbsPath(appPath);
             if (!FileUtils.isExist(appAbsPath)) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(appAbsPath));
                 return false;
@@ -133,7 +133,7 @@ public class WTTestBuilder extends Builder {
             }
 
             //-----------Step: upload script file ------------------------------
-            String scriptAbsPath = FileUtils.getAbsPath(workPath, scriptPath);
+            String scriptAbsPath = FileUtils.getAbsPath(scriptPath);
             if (!FileUtils.isExist(scriptAbsPath)) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(scriptAbsPath));
                 return false;

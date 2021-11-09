@@ -10,17 +10,11 @@ import java.net.URI;
 
 public class FileUtils {
 
-    public static String getAbsPath(FilePath workspace, String path) throws IOException, InterruptedException {
+    public static String getAbsPath(String path) throws IOException, InterruptedException {
         if (TextUtils.isBlank(path)) {
             return StringUtils.EMPTY;
         }
-        String trimmed = StringUtils.trim(path);
-        if (trimmed.startsWith(File.separator)) {
-            return trimmed;
-        } else {
-            URI workspaceURI = workspace.toURI();
-            return workspaceURI.getPath() + trimmed;
-        }
+        return StringUtils.trim(path);
     }
 
     public static boolean isExist(String path) {

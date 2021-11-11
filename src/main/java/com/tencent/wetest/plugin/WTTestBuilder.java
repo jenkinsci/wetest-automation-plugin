@@ -239,10 +239,16 @@ public class WTTestBuilder extends Builder {
                     || (item != null && !item.hasPermission(Item.CONFIGURE))) {
                     return groupIds;
             }
-            if (projectId.isEmpty()) {
-                return groupIds;
-            }
             try {
+                // first create job, project id is empty, set default value
+                if (projectId.isEmpty()) {
+                    List<ProjectInfo> infos = WTApp.getGlobalApiClient().getProjectIds();
+                    if (infos.size() == 0) {
+                        return groupIds;
+                    }
+                    projectId = infos.get(0).getProjectId();
+                }
+
                 for (GroupInfo info : WTApp.getGlobalApiClient().getGroupIds(projectId)) {
                     groupIds.add(String.format("%s(%s, %ddevices)", info.getGroupName(), info.getCloudName(),
                             info.getDeviceNum()), info.getGroupId());

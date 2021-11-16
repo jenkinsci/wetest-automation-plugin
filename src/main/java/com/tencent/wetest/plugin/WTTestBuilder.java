@@ -112,7 +112,7 @@ public class WTTestBuilder extends Builder {
         return runTest(build, build.getWorkspace(), launcher, listener);
     }
 
-    private boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher, TaskListener listener)
+    public boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher, TaskListener listener)
             throws InterruptedException, IOException {
         listener.getLogger().println(Messages.STARTED_RUN_TEST());
         listener.getLogger().println(Messages.STARTED_UPLOAD_TEST_FILE());

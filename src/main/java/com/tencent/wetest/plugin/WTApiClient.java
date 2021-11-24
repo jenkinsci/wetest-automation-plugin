@@ -17,7 +17,9 @@ import com.tencent.wetest.plugin.model.ProjectInfo;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +32,7 @@ public class WTApiClient {
     public static final String DEFAULT_CLOUD_TOOL = "cloudtest";
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
     public static final String DEFAULT_FRAME_TYPE = "appium1.19.1";
+    public static final String GAME_LOOP_FRAME_TYPE = "game_loop";
 
     private static final String CHOOSE_TYPE_DEVICE_IDS = "deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS = "modelids";
@@ -163,7 +166,8 @@ public class WTApiClient {
         if (modelList != null) {
             for (ModelList modelList : modelList) {
                 groups.add(new GroupInfo(modelList.name, modelList.name,
-                        modelList.cloudName, getDeviceNums(modelList)));
+                        modelList.cloudName, getDeviceNums(modelList),
+                        modelList.deviceType, modelList.cloudId));
             }
         } else {
             logger.log(Level.SEVERE, "Get group ids failed: result is null");
@@ -203,5 +207,15 @@ public class WTApiClient {
     private int getDeviceNums(ModelList list) {
         return list.filterType == MODEL_LIST_FILTER_TYPE_MODEL
                 ? list.modelIds.length : list.deviceIds.length;
+    }
+
+    private int getDeviceGroupCloudId(String groupName) {
+        for (ModelList modelList : modelList) {
+            if (!modelList.name.equals(groupName)) {
+                continue;
+            }
+            return modelList.cloudId;
+        }
+        return 0;
     }
 }

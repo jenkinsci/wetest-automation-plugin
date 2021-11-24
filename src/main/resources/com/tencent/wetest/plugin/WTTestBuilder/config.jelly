@@ -12,7 +12,7 @@
     </f:entry>
     <f:entry field="testscript" title="${%Test Script}">
         <f:textbox name="scriptPath" value="${instance.scriptPath}"
-                   placeholder="Test script absolute path"/>
+                   placeholder="Test script absolute path. If you are using Game Loop, no script required"/>
     </f:entry>
     <f:entry field="frameType" title="${%Framework}">
         <f:select/>
@@ -25,7 +25,7 @@
             <f:textbox name="caseTimeout" default="10" value="${instance.caseTimeout}"/>
         </f:entry>
         <f:entry field="timeout" title="${%Test Run Time-out Period}">
-            <f:textbox name="timeout" default="30" value="${instance.getTimeout()}"/>
+            <f:textbox name="timeout" default="60" value="${instance.getTimeout()}"/>
         </f:entry>
     </f:advanced>
 </j:jelly>

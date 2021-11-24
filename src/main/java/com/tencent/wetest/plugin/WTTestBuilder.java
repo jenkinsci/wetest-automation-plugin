@@ -33,6 +33,11 @@ public class WTTestBuilder extends Builder {
     public static final int DEFAULT_MIN_TIMEOUT = 15;
     public static final int DEFAULT_MAX_CASE_TIMEOUT = 30;
     public static final int DEFAULT_MIN_CASE_TIMEOUT = 5;
+
+    public static final String ANDROID_OS_TYPE = "Android";
+    public static final String IOS_OS_TYPE = "Ios";
+    public static final int IOS_DEVICE_TYPE = 1;
+
     private String projectId;
     private String appPath;
     private String scriptPath;
@@ -133,16 +138,20 @@ public class WTTestBuilder extends Builder {
             }
 
             //-----------Step: upload script file ------------------------------
+            int scriptId = 0;
             String scriptAbsPath = FileUtils.getAbsPath(scriptPath);
             if (!FileUtils.isExist(scriptAbsPath)) {
-                listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(scriptAbsPath));
-                return false;
-            }
-            listener.getLogger().println(Messages.READY_UPLOAD_SCRIPT_FILE(scriptAbsPath));
-            int scriptId = client.uploadScript(scriptAbsPath);
-            if (scriptId <= 0) {
-                listener.getLogger().println(Messages.ERR_UPLOAD_SCRIPT_FILE(scriptAbsPath));
-                return false;
+                if (!WTApiClient.GAME_LOOP_FRAME_TYPE.equals(frameType)) {
+                    listener.getLogger().println(Messages.ERR_UPLOAD_FILE_NOT_FOUND(scriptAbsPath));
+                    return false;
+                }
+            } else {
+                listener.getLogger().println(Messages.READY_UPLOAD_SCRIPT_FILE(scriptAbsPath));
+                scriptId = client.uploadScript(scriptAbsPath);
+                if (scriptId <= 0) {
+                    listener.getLogger().println(Messages.ERR_UPLOAD_SCRIPT_FILE(scriptAbsPath));
+                    return false;
+                }
             }
 
             listener.getLogger().println(Messages.READY_RUN_TEST());
@@ -233,7 +242,8 @@ public class WTTestBuilder extends Builder {
             return projectIds;
         }
 
-        default ListBoxModel doFillGroupIdItems(@AncestorInPath Item item, @QueryParameter String projectId) {
+        default ListBoxModel doFillGroupIdItems(@AncestorInPath Item item, @QueryParameter String projectId,
+                                                @QueryParameter String targetOsType) {
             ListBoxModel groupIds = new ListBoxModel();
             if ((item == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER))
                     || (item != null && !item.hasPermission(Item.CONFIGURE))) {
@@ -250,6 +260,10 @@ public class WTTestBuilder extends Builder {
                 }
 
                 for (GroupInfo info : WTApp.getGlobalApiClient().getGroupIds(projectId)) {
+                    if ((ANDROID_OS_TYPE.equals(targetOsType) && info.getDeviceType() == IOS_DEVICE_TYPE) ||
+                            (IOS_OS_TYPE.equals(targetOsType) && info.getDeviceType() != IOS_DEVICE_TYPE)) {
+                        continue;
+                    }
                     groupIds.add(String.format("%s(%s, %ddevices)", info.getGroupName(), info.getCloudName(),
                             info.getDeviceNum()), info.getGroupId());
                 }
@@ -294,10 +308,11 @@ public class WTTestBuilder extends Builder {
 
 
         default ListBoxModel doFillFrameTypeItems() {
-            return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE);
+            return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE).add(WTApiClient.GAME_LOOP_FRAME_TYPE);
         }
 
         default ListBoxModel doFillTargetOsTypeItems() {
+
             return new ListBoxModel().add("Android");
         }
 

@@ -90,12 +90,14 @@ public class WTApiClient {
         return toolPath;
     }
 
-    TestInfo startTest(String projectId, String hashAppId, int scriptId, String groupId, String timeOut,
-                       String frameType, String caseTimeOut) throws CloudTestSDKException {
+    TestInfo startTest(String projectEnId, String hashAppId, int scriptId, String groupId, String timeOut,
+                       String frameType, String caseTimeOut, boolean isPipeline) throws CloudTestSDKException {
+        String projectId = getProjectId(projectEnId);
         AutomationTest automationTest = new AutomationTest();
         automationTest.setAppHashId(hashAppId);
         automationTest.setScriptId(scriptId);
         automationTest.setDevices(getDeviceIdsByGroup(groupId));
+        automationTest.setCloudId(getDeviceGroupCloudId(projectId, groupId));
         // choose type set by getDeviceIdsByGroup()
         automationTest.setDeviceChooseType(chooseType);
         automationTest.setFrameType(frameType);
@@ -105,6 +107,10 @@ public class WTApiClient {
         automationTest.setMaxCaseRuntime(caseTestTimeout * 60);
         automationTest.setOrderAccountType(DEFAULT_ORDER_ACCOUNT_TYPE);
 
+        // pipeline is project en id
+//        if (isPipeline) {
+//            automationTest.setProject(getProjectId(projectId));
+//        } else
         if (!StringUtils.isBlank(projectId)) {
             automationTest.setProject(projectId);
         }
@@ -152,7 +158,7 @@ public class WTApiClient {
         Project[] projectResp = ctClient.account.getProjects();
         if (projectResp != null) {
             for (Project project : projectResp) {
-                projects.add(new ProjectInfo(project.projectName, project.projectId));
+                projects.add(new ProjectInfo(project.projectName, project.projectId, project.keyName));
             }
         } else {
             logger.log(Level.SEVERE, "Get project ids failed: result is null");
@@ -160,9 +166,10 @@ public class WTApiClient {
         return projects;
     }
 
-    List<GroupInfo> getGroupIds(String groupId) throws CloudTestSDKException {
+    List<GroupInfo> getGroupIds(String projectEnId) throws CloudTestSDKException {
+        String projectId = getProjectId(projectEnId);
         List<GroupInfo> groups = new ArrayList<>();
-        modelList = ctClient.device.getModelList(groupId);
+        modelList = ctClient.device.getModelList(projectId);
         if (modelList != null) {
             for (ModelList modelList : modelList) {
                 groups.add(new GroupInfo(modelList.name, modelList.name,
@@ -209,13 +216,29 @@ public class WTApiClient {
                 ? list.modelIds.length : list.deviceIds.length;
     }
 
-    private int getDeviceGroupCloudId(String groupName) {
+    private int getDeviceGroupCloudId(String projectId, String groupName) throws CloudTestSDKException{
+        if (modelList == null) {
+            modelList = ctClient.device.getModelList(projectId);
+        }
+
         for (ModelList modelList : modelList) {
-            if (!modelList.name.equals(groupName)) {
-                continue;
+            if (modelList.name.equals(groupName)) {
+                return modelList.cloudId;
             }
-            return modelList.cloudId;
         }
         return 0;
     }
+
+    private String getProjectId(String projectEnId) throws CloudTestSDKException{
+        Project[] projectResp = ctClient.account.getProjects();
+        if (projectResp != null) {
+            for (Project project : projectResp) {
+                if (project.keyName.equals(projectEnId)) {
+                    return project.projectId;
+                }
+            }
+        }
+        return "";
+    }
+
 }

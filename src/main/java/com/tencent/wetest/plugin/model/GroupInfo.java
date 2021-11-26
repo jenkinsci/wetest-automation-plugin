@@ -40,4 +40,8 @@ public class GroupInfo {
     public void setDeviceType(int deviceType) {
         this.deviceType = deviceType;
     }
+
+    public int getCloudId() {
+        return cloudId;
+    }
 }

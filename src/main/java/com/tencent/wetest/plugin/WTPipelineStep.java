@@ -126,7 +126,7 @@ public class WTPipelineStep extends AbstractStepImpl {
 
         @Override
         public String getFunctionName() {
-            return "runInWeTestCloud";
+            return Messages.FUNCTION_NAME();
         }
     }
 

@@ -38,20 +38,20 @@ public class WTPipelineStep extends AbstractStepImpl {
     private String scriptPath;
     private String groupId;
     private String timeout;
-    private String framework;
+    private String frameType;
     private String language;
     private String caseTimeout;
     private String targetOsType;
 
     @DataBoundConstructor
     public WTPipelineStep(String projectId, String appPath, String scriptPath, String groupId,
-                          String timeout, String framework, String caseTimeout, String targetOsType) {
+                          String timeout, String frameType, String caseTimeout, String targetOsType) {
         this.projectId = projectId;
         this.appPath = appPath;
         this.scriptPath = scriptPath;
         this.groupId = groupId;
         this.timeout = timeout;
-        this.framework = framework;
+        this.frameType = frameType;
         this.caseTimeout = caseTimeout;
         this.targetOsType = targetOsType;
     }
@@ -79,12 +79,12 @@ public class WTPipelineStep extends AbstractStepImpl {
         return timeout;
     }
 
-    public String getFramework() {
-        return framework;
+    public String getFrameType() {
+        return frameType;
     }
 
-    public void setFramework(String framework) {
-        this.framework = framework;
+    public void setFrameType(String frameType) {
+        this.frameType = frameType;
     }
 
     public String getLanguage() {
@@ -157,7 +157,7 @@ public class WTPipelineStep extends AbstractStepImpl {
                     step.getScriptPath(),
                     step.getGroupId(),
                     step.getTimeout(),
-                    step.getFramework(),
+                    step.getFrameType(),
                     step.getCaseTimeout(),
                     step.getTargetOsType()
             );

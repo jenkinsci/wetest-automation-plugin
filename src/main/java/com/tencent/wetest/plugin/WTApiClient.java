@@ -91,13 +91,12 @@ public class WTApiClient {
     }
 
     TestInfo startTest(String projectEnId, String hashAppId, int scriptId, String groupId, String timeOut,
-                       String frameType, String caseTimeOut, boolean isPipeline) throws CloudTestSDKException {
-        String projectId = getProjectId(projectEnId);
+                       String frameType, String caseTimeOut) throws CloudTestSDKException {
         AutomationTest automationTest = new AutomationTest();
         automationTest.setAppHashId(hashAppId);
         automationTest.setScriptId(scriptId);
         automationTest.setDevices(getDeviceIdsByGroup(groupId));
-        automationTest.setCloudId(getDeviceGroupCloudId(projectId, groupId));
+        automationTest.setCloudId(getDeviceGroupCloudId(projectEnId, groupId));
         // choose type set by getDeviceIdsByGroup()
         automationTest.setDeviceChooseType(chooseType);
         automationTest.setFrameType(frameType);
@@ -107,12 +106,8 @@ public class WTApiClient {
         automationTest.setMaxCaseRuntime(caseTestTimeout * 60);
         automationTest.setOrderAccountType(DEFAULT_ORDER_ACCOUNT_TYPE);
 
-        // pipeline is project en id
-//        if (isPipeline) {
-//            automationTest.setProject(getProjectId(projectId));
-//        } else
-        if (!StringUtils.isBlank(projectId)) {
-            automationTest.setProject(projectId);
+        if (!StringUtils.isBlank(projectEnId)) {
+            automationTest.setProject(projectEnId);
         }
 
         return ctClient.test.startAutomationTest(automationTest);
@@ -167,9 +162,8 @@ public class WTApiClient {
     }
 
     List<GroupInfo> getGroupIds(String projectEnId) throws CloudTestSDKException {
-        String projectId = getProjectId(projectEnId);
         List<GroupInfo> groups = new ArrayList<>();
-        modelList = ctClient.device.getModelList(projectId);
+        modelList = ctClient.device.getModelList(projectEnId);
         if (modelList != null) {
             for (ModelList modelList : modelList) {
                 groups.add(new GroupInfo(modelList.name, modelList.name,
@@ -216,11 +210,14 @@ public class WTApiClient {
                 ? list.modelIds.length : list.deviceIds.length;
     }
 
-    private int getDeviceGroupCloudId(String projectId, String groupName) throws CloudTestSDKException{
+    private int getDeviceGroupCloudId(String projectEnId, String groupName) throws CloudTestSDKException{
         if (modelList == null) {
-            modelList = ctClient.device.getModelList(projectId);
+            modelList = ctClient.device.getModelList(projectEnId);
         }
 
+        if (modelList == null || modelList.length == 0) {
+            return 0;
+        }
         for (ModelList modelList : modelList) {
             if (modelList.name.equals(groupName)) {
                 return modelList.cloudId;

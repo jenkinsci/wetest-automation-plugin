@@ -162,7 +162,7 @@ public class WTPipelineStep extends AbstractStepImpl {
                     step.getTargetOsType()
             );
 
-            return builder.runTest(build, workspace, launcher, listener, true);
+            return builder.runTest(build, workspace, launcher, listener);
         }
     }
 }

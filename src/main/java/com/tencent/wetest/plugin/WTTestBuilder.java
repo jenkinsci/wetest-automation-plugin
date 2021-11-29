@@ -114,11 +114,11 @@ public class WTTestBuilder extends Builder {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
-        return runTest(build, build.getWorkspace(), launcher, listener, false);
+        return runTest(build, build.getWorkspace(), launcher, listener);
     }
 
     public boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher,
-                           TaskListener listener, boolean isPipeline)
+                           TaskListener listener)
             throws InterruptedException, IOException {
         listener.getLogger().println(Messages.STARTED_RUN_TEST());
         listener.getLogger().println(Messages.STARTED_UPLOAD_TEST_FILE());
@@ -162,7 +162,7 @@ public class WTTestBuilder extends Builder {
 
             //-----------Step: start test ------------------------------
             TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appHashId, scriptId,
-                    groupId, timeout, frameType, caseTimeout, isPipeline);
+                    groupId, timeout, frameType, caseTimeout);
             if (info != null) {
                 listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId,
                         String.format(REPORT_URL, info.testId)));

@@ -132,7 +132,15 @@ public class WTTestBuilder extends Builder {
                 return false;
             }
             listener.getLogger().println(Messages.READY_UPLOAD_APPLICATION_FILE(appAbsPath));
-            String appHashId = client.uploadApp(appAbsPath, projectId);
+            boolean isIos = false;
+            if (IOS_OS_TYPE.equals(targetOsType)) {
+                isIos = true;
+                // Android and Ios test frame type different
+                if (frameType.equals(WTApiClient.DEFAULT_FRAME_TYPE)) {
+                    frameType = WTApiClient.APPIUM_FRAME_TYPE;
+                }
+            }
+            String appHashId = client.uploadApp(isIos, appAbsPath, projectId);
             if (appHashId.isEmpty()) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_APPLICATION_FILE(appAbsPath));
                 return false;
@@ -308,13 +316,16 @@ public class WTTestBuilder extends Builder {
         }
 
 
-        default ListBoxModel doFillFrameTypeItems() {
+        default ListBoxModel doFillFrameTypeItems(@QueryParameter String targetOsType) {
+            if (IOS_OS_TYPE.equals(targetOsType)) {
+                return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE);
+            }
             return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE).add(WTApiClient.GAME_LOOP_FRAME_TYPE);
         }
 
         default ListBoxModel doFillTargetOsTypeItems() {
 
-            return new ListBoxModel().add("Android");
+            return new ListBoxModel().add("Android").add("Ios");
         }
 
         default FormValidation doCheckTimeout(@QueryParameter String value) {

@@ -16,10 +16,7 @@ import com.tencent.wetest.plugin.model.GroupInfo;
 import com.tencent.wetest.plugin.model.ProjectInfo;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +30,7 @@ public class WTApiClient {
     public static final String DEFAULT_PROTOCOL_TYPE = HttpProfile.REQ_HTTP;
     public static final String DEFAULT_FRAME_TYPE = "appium1.19.1";
     public static final String GAME_LOOP_FRAME_TYPE = "game_loop";
+    public static final String APPIUM_FRAME_TYPE = "appium";
 
     private static final String CHOOSE_TYPE_DEVICE_IDS = "deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS = "modelids";
@@ -127,10 +125,15 @@ public class WTApiClient {
         }
     }
 
-    String uploadApp(String appPath, String projectId) throws CloudTestSDKException {
+    String uploadApp(boolean ios, String appPath, String projectId) throws CloudTestSDKException {
         String appHashId;
         try {
-            appHashId = ctClient.upload.multiPartUploadApkToWT(appPath, projectId).appHashId;
+            if (ios) {
+                appHashId = ctClient.upload.multiPartUploadIpaToWT(appPath, projectId).appHashId;
+            } else {
+                appHashId = ctClient.upload.multiPartUploadApkToWT(appPath, projectId).appHashId;
+            }
+
         } catch (NumberFormatException e) {
             return "";
         }

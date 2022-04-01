@@ -117,6 +117,21 @@ public class WTTestBuilder extends Builder {
         return runTest(build, build.getWorkspace(), launcher, listener);
     }
 
+    public String CovertFrameType(String frameType, String iosType) {
+        switch (frameType) {
+            case WTApiClient.APPIUM_FRAME_TYPE_SHOW:
+                if (IOS_OS_TYPE.equals(targetOsType)) {
+                    return WTApiClient.APPIUM_FRAME_TYPE;
+                }
+                return WTApiClient.DEFAULT_FRAME_TYPE;
+            case WTApiClient.ESPRESSO_FRAME_TYPE_SHOW:
+                return WTApiClient.ESPRESSO_FRAME_TYPE;
+            case WTApiClient.XCTEST_FRAME_TYPE_SHOW:
+                return WTApiClient.XCTEST_FRAME_TYPE;
+            }
+        return frameType;
+    }
+
     public boolean runTest(Run<?, ?> build, FilePath workPath, Launcher launcher,
                            TaskListener listener)
             throws InterruptedException, IOException {
@@ -133,13 +148,18 @@ public class WTTestBuilder extends Builder {
             }
             listener.getLogger().println(Messages.READY_UPLOAD_APPLICATION_FILE(appAbsPath));
             boolean isIos = false;
+
             if (IOS_OS_TYPE.equals(targetOsType)) {
                 isIos = true;
-                // Android and Ios test frame type different
-                if (frameType.equals(WTApiClient.DEFAULT_FRAME_TYPE)) {
-                    frameType = WTApiClient.APPIUM_FRAME_TYPE;
-                }
+
+//                // Android and Ios test frame type different
+//                if (frameType.equals(WTApiClient.DEFAULT_FRAME_TYPE)) {
+//                    frameType = WTApiClient.APPIUM_FRAME_TYPE;
+//                }
             }
+            listener.getLogger().println(Messages.IOS_TEST_FILE(isIos));
+            frameType = CovertFrameType(frameType, targetOsType);
+
             String appHashId = client.uploadApp(isIos, appAbsPath, projectId);
             if (appHashId.isEmpty()) {
                 listener.getLogger().println(Messages.ERR_UPLOAD_APPLICATION_FILE(appAbsPath));
@@ -170,7 +190,7 @@ public class WTTestBuilder extends Builder {
 
             //-----------Step: start test ------------------------------
             TestInfo info = WTApp.getGlobalApiClient().startTest(projectId, appHashId, scriptId,
-                    groupId, timeout, frameType, caseTimeout);
+                    groupId, timeout, frameType, caseTimeout, isIos);
             if (info != null) {
                 listener.getLogger().println(Messages.SUCCESS_TEST_INFO(info.testId,
                         String.format(REPORT_URL, info.testId)));
@@ -318,9 +338,11 @@ public class WTTestBuilder extends Builder {
 
         default ListBoxModel doFillFrameTypeItems(@QueryParameter String targetOsType) {
             if (IOS_OS_TYPE.equals(targetOsType)) {
-                return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE);
+                return new ListBoxModel().add(WTApiClient.APPIUM_FRAME_TYPE_SHOW).
+                        add(WTApiClient.XCTEST_FRAME_TYPE_SHOW);
             }
-            return new ListBoxModel().add(WTApiClient.DEFAULT_FRAME_TYPE).add(WTApiClient.GAME_LOOP_FRAME_TYPE);
+            return new ListBoxModel().add(WTApiClient.APPIUM_FRAME_TYPE_SHOW).
+                    add(WTApiClient.GAME_LOOP_FRAME_TYPE).add(WTApiClient.ESPRESSO_FRAME_TYPE_SHOW);
         }
 
         default ListBoxModel doFillTargetOsTypeItems() {

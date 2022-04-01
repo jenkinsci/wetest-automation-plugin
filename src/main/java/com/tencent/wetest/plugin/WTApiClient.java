@@ -31,6 +31,12 @@ public class WTApiClient {
     public static final String DEFAULT_FRAME_TYPE = "appium1.19.1";
     public static final String GAME_LOOP_FRAME_TYPE = "game_loop";
     public static final String APPIUM_FRAME_TYPE = "appium";
+    public static final String ESPRESSO_FRAME_TYPE = "espresso";
+    public static final String XCTEST_FRAME_TYPE = "xctest";
+
+    public static final String APPIUM_FRAME_TYPE_SHOW = "Appium";
+    public static final String ESPRESSO_FRAME_TYPE_SHOW = "Espresso";
+    public static final String XCTEST_FRAME_TYPE_SHOW = "XCTest";
 
     private static final String CHOOSE_TYPE_DEVICE_IDS = "deviceids";
     private static final String CHOOSE_TYPE_MODEL_IDS = "modelids";
@@ -89,7 +95,7 @@ public class WTApiClient {
     }
 
     TestInfo startTest(String projectEnId, String hashAppId, int scriptId, String groupId, String timeOut,
-                       String frameType, String caseTimeOut) throws CloudTestSDKException {
+                       String frameType, String caseTimeOut, boolean ios) throws CloudTestSDKException {
         AutomationTest automationTest = new AutomationTest();
         automationTest.setAppHashId(hashAppId);
         automationTest.setScriptId(scriptId);
@@ -103,6 +109,7 @@ public class WTApiClient {
         automationTest.setMaxTestRunTime(testTimeout * 60);
         automationTest.setMaxCaseRuntime(caseTestTimeout * 60);
         automationTest.setOrderAccountType(DEFAULT_ORDER_ACCOUNT_TYPE);
+        automationTest.setResign(ios);
 
         if (!StringUtils.isBlank(projectEnId)) {
             automationTest.setProject(projectEnId);

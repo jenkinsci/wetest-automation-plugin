@@ -6,6 +6,9 @@
     <f:entry field="targetOsType" title="${%Target OS Type}">
         <f:select/>
     </f:entry>
+    <f:entry field="frameType" title="${%Framework}">
+        <f:select/>
+    </f:entry>
     <f:entry field="application" title="${%Application}">
         <f:textbox name="appPath" value="${instance.appPath}"
                    placeholder="Test app absolute path"/>
@@ -13,9 +16,6 @@
     <f:entry field="testscript" title="${%Test Script}">
         <f:textbox name="scriptPath" value="${instance.scriptPath}"
                    placeholder="Test script absolute path. If you are using Game Loop, no script required"/>
-    </f:entry>
-    <f:entry field="frameType" title="${%Framework}">
-        <f:select/>
     </f:entry>
     <f:entry field="groupId" title="${%Device group}">
         <f:select/>

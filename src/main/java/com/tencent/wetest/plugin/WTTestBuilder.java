@@ -117,7 +117,7 @@ public class WTTestBuilder extends Builder {
         return runTest(build, build.getWorkspace(), launcher, listener);
     }
 
-    public String CovertFrameType(String frameType, String iosType) {
+    public String covertFrameType(String frameType, String iosType) {
         switch (frameType) {
             case WTApiClient.APPIUM_FRAME_TYPE_SHOW:
                 if (IOS_OS_TYPE.equals(targetOsType)) {
@@ -158,7 +158,7 @@ public class WTTestBuilder extends Builder {
 //                }
             }
             listener.getLogger().println(Messages.IOS_TEST_FILE(isIos));
-            frameType = CovertFrameType(frameType, targetOsType);
+            frameType = covertFrameType(frameType, targetOsType);
 
             String appHashId = client.uploadApp(isIos, appAbsPath, projectId);
             if (appHashId.isEmpty()) {
